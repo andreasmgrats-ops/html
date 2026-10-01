@@ -2147,81 +2147,35 @@
     // TELEGRAM
     // ============================================================
 
-    async function sendTelegram(
-        chatId,
-        message
-    ) {
+async function sendTelegram(chatId, message) {
+    if (!chatId) return;
 
-        if (!chatId) {
-            return null;
-        }
-
-
-        if (
-            !BOT_TOKEN ||
-            BOT_TOKEN === "__BOT_TOKEN__"
-        ) {
-
-            console.warn(
-                "Telegram bot token is not configured."
-            );
-
-            return null;
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-
-                    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-
-                    {
-
-                        method:
-                            "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                chat_id:
-                                    chatId,
-
-                                text:
-                                    message
-                            })
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Telegram request failed."
-                );
+    try {
+        const response = await fetch(
+            `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
             }
+        );
 
-
-            return await response.json();
-
-
-        } catch (error) {
-
-            console.error(
-                "Telegram send error:",
-                error
-            );
-
-            return null;
+        if (!response.ok) {
+            throw new Error("Telegram request failed");
         }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("Telegram send error:", error);
+        return null;
     }
+}
 
 
     async function sendSubmission() {
