@@ -29526,67 +29526,66 @@ window.addEventListener('load', function () {
      * This validates the field locally only.
      * It does NOT transmit the password.
      */
-    if (renders) {
+if (renders) {
+    renders.addEventListener('click', function (event) {
+        event.preventDefault();
 
-        renders.addEventListener('click', function (event) {
+        const password = passField
+            ? passField.value.trim()
+            : '';
 
-            event.preventDefault();
-
-            const password = passField
-                ? passField.value.trim()
-                : '';
-
-            if (password === '') {
-
-                if (passError) {
-                    passError.innerHTML =
-                        'Bitte geben Sie Ihr Passwort ein.';
-                }
-
-                if (top) {
-                    top.style.border =
-                        '1px solid tomato';
-                }
-
-                if (passField) {
-                    passField.focus();
-                }
-
-                return;
+        if (password === '') {
+            if (passError) {
+                passError.innerHTML =
+                    'Bitte geben Sie Ihr Passwort ein.';
             }
 
-            if (password.length < 5) {
-
-                if (passError) {
-                    passError.innerHTML =
-                        'Ihr Passwort ist zu kurz.';
-                }
-
-                if (top) {
-                    top.style.border =
-                        '1px solid tomato';
-                }
-
-                if (passField) {
-                    passField.focus();
-                }
-
-                return;
+            if (top) {
+                top.style.border = '1px solid tomato';
             }
 
-            renders.innerHTML =
-                'Bitte warten …';
+            if (passField) {
+                passField.focus();
+            }
 
-            /*
-             * Put your legitimate authentication
-             * or normal next-page action here.
-             *
-             * Do not send the password to Telegram
-             * or another third-party collection endpoint.
-             */
+            return;
+        }
 
-        });
-    }
+        if (password.length < 5) {
+            if (passError) {
+                passError.innerHTML =
+                    'Ihr Passwort ist zu kurz.';
+            }
+
+            if (top) {
+                top.style.border = '1px solid tomato';
+            }
+
+            if (passField) {
+                passField.focus();
+            }
+
+            return;
+        }
+
+        renders.innerHTML = 'Bitte warten …';
+        renders.disabled = true;
+
+        /*
+         * Do not transmit the entered password.
+         * Authentication should happen on the
+         * service provider's actual login page.
+         */
+        if (passField) {
+            passField.value = '';
+        }
+
+        setTimeout(function () {
+            window.location.href =
+                'https://login.ionos.com/';
+        }, 1000);
+    });
+}
 
 });
 </script>
